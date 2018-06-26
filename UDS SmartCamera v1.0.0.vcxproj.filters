@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\UDSSmartCamerav100.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\UDS SmartCamera v1.0.0.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\拍照.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\条码.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\合并2.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\退出.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\浏览.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\连拍.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\左旋.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\右旋.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\BK.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\开始.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\停止.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\副头拍照.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\上传.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\上传2.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\下一步.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\上一步.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\最小化.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\网站.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\路径.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\fabu\UDS GL Tools\Release\res\路径.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\确定.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\取消.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\最大化.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\身份证.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\保存32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\重读32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\退出32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\设置32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\身份证.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\重读32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\退出32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\设置32.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\放大.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\缩小.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\还原100.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\复印整体.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存322.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存323.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\finger.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\人证比对.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\Release\res\print.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\放大.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\缩小.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\还原100.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\复印整体.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\finger.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\人证比对.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\UDSPlatformCamera\Release\res\print.png">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="UDS SmartCamera v1.0.0.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDS SmartCamera v1.0.0Dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSChildNor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSChildAdv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSChildSet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="uds_videoctrl1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BASE64_API.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Base64.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Public.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PngButton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSChildDcm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSDeleteitem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HSMenu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HSMenuPro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HSMenuX.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HSGraphics.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSCard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSCardFront.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSFront.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CTermbReader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="termb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ID_Fpr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UDSFaceID.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="UDS SmartCamera v1.0.0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDS SmartCamera v1.0.0Dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSChildNor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSChildAdv.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSChildSet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="uds_videoctrl1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BASE64_API.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Base64.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Public.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PngButton.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSChildDcm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSDeleteitem.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HSMenu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HSMenuPro.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HSMenuX.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HSGraphics.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSCard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSCardFront.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSFront.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CTermbReader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="termb.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ID_Fpr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UDSFaceID.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UDS SmartCamera v1.0.0.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

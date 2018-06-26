@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{82BDB310-525F-4605-B221-74F356C055B9}</ProjectGuid>
+    <RootNamespace>UDSSmartCamerav100</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <ProjectName>UDSCameraTool</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>..\Release\pub\faceid_lib;..\Release\pub\lib;..\Release\pub\Gdiplus_lib;..\Release\pub\pdflib;..\Release\pub\ocr_lib;..\Release\pub\finger;D:\Program Files %28x86%29\Opencv\opencv\build\x86\vc10\lib;..\Release\pub\qrcode_lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Release\pub\faceid_include;..\Release\pub\finger;..\Release\pub\include;..\Release\pub\Gdiplus_include;..\Release\pub\pdflib;..\Release\pub\ocr_include;D:\Program Files %28x86%29\Opencv\opencv\build\include;D:\Program Files %28x86%29\Opencv\opencv\build\include\opencv;D:\Program Files %28x86%29\Opencv\opencv\build\include\opencv2;..\Release\pub\qrcode_include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>cximage.lib;GdiPlus.lib;IMAGEAndDCM.lib;pdflib.lib;liblept168.lib;libtesseract302.lib;ID_FprCap.lib;UDS_FaceCore.lib;opencv_calib3d249.lib;opencv_contrib249.lib;opencv_core249.lib;opencv_features2d249.lib;opencv_flann249.lib;opencv_gpu249.lib;opencv_highgui249.lib;opencv_imgproc249.lib;opencv_legacy249.lib;opencv_ml249.lib;opencv_objdetect249.lib;opencv_ts249.lib;opencv_video249.lib;libzint.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\..\fabu\UDS GL Tools\Release\res\路径.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存32.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存322.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\保存323.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\设置32.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\身份证.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\退出32.png" />
+    <None Include="..\..\..\UDSAssistant\UDSCameraToolUnicode\Release\res\重读32.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\finger.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\print.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\人证比对.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\复印整体.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\放大.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\缩小.png" />
+    <None Include="..\..\UDSPlatformCamera\Release\res\还原100.png" />
+    <None Include="..\Release\res\BK.png" />
+    <None Include="..\Release\res\finger.png" />
+    <None Include="..\Release\res\print.png" />
+    <None Include="..\Release\res\上一步.png" />
+    <None Include="..\Release\res\上传.png" />
+    <None Include="..\Release\res\上传2.png" />
+    <None Include="..\Release\res\下一步.png" />
+    <None Include="..\Release\res\人证比对.png" />
+    <None Include="..\Release\res\保存32.png" />
+    <None Include="..\Release\res\停止.png" />
+    <None Include="..\Release\res\副头拍照.png" />
+    <None Include="..\Release\res\取消.png" />
+    <None Include="..\Release\res\右旋.png" />
+    <None Include="..\Release\res\合并2.png" />
+    <None Include="..\Release\res\复印整体.png" />
+    <None Include="..\Release\res\左旋.png" />
+    <None Include="..\Release\res\开始.png" />
+    <None Include="..\Release\res\拍照.png" />
+    <None Include="..\Release\res\放大.png" />
+    <None Include="..\Release\res\最大化.png" />
+    <None Include="..\Release\res\最小化.png" />
+    <None Include="..\Release\res\条码.png" />
+    <None Include="..\Release\res\浏览.png" />
+    <None Include="..\Release\res\确定.png" />
+    <None Include="..\Release\res\缩小.png" />
+    <None Include="..\Release\res\网站.png" />
+    <None Include="..\Release\res\设置32.png" />
+    <None Include="..\Release\res\路径.png" />
+    <None Include="..\Release\res\身份证.png" />
+    <None Include="..\Release\res\还原100.png" />
+    <None Include="..\Release\res\连拍.png" />
+    <None Include="..\Release\res\退出.png" />
+    <None Include="..\Release\res\退出32.png" />
+    <None Include="..\Release\res\重读32.png" />
+    <None Include="ReadMe.txt" />
+    <None Include="res\UDS SmartCamera v1.0.0.ico" />
+    <None Include="res\UDSSmartCamerav100.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Base64.h" />
+    <ClInclude Include="BASE64_API.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="CTermbReader.h" />
+    <ClInclude Include="HSGraphics.h" />
+    <ClInclude Include="HSMenu.h" />
+    <ClInclude Include="HSMenuPro.h" />
+    <ClInclude Include="HSMenuX.h" />
+    <ClInclude Include="ID_Fpr.h" />
+    <ClInclude Include="PngButton.h" />
+    <ClInclude Include="Public.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="termb.h" />
+    <ClInclude Include="UDS SmartCamera v1.0.0.h" />
+    <ClInclude Include="UDS SmartCamera v1.0.0Dlg.h" />
+    <ClInclude Include="UDSCard.h" />
+    <ClInclude Include="UDSCardFront.h" />
+    <ClInclude Include="UDSChildAdv.h" />
+    <ClInclude Include="UDSChildDcm.h" />
+    <ClInclude Include="UDSChildNor.h" />
+    <ClInclude Include="UDSChildSet.h" />
+    <ClInclude Include="UDSDeleteitem.h" />
+    <ClInclude Include="UDSFaceID.h" />
+    <ClInclude Include="UDSFront.h" />
+    <ClInclude Include="uds_videoctrl1.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Base64.cpp" />
+    <ClCompile Include="BASE64_API.cpp" />
+    <ClCompile Include="Common.cpp" />
+    <ClCompile Include="CTermbReader.cpp" />
+    <ClCompile Include="HSGraphics.cpp" />
+    <ClCompile Include="HSMenu.cpp" />
+    <ClCompile Include="HSMenuPro.cpp" />
+    <ClCompile Include="HSMenuX.cpp" />
+    <ClCompile Include="ID_Fpr.cpp" />
+    <ClCompile Include="PngButton.cpp" />
+    <ClCompile Include="Public.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="termb.cpp" />
+    <ClCompile Include="UDS SmartCamera v1.0.0.cpp" />
+    <ClCompile Include="UDS SmartCamera v1.0.0Dlg.cpp" />
+    <ClCompile Include="UDSCard.cpp" />
+    <ClCompile Include="UDSCardFront.cpp" />
+    <ClCompile Include="UDSChildAdv.cpp" />
+    <ClCompile Include="UDSChildDcm.cpp" />
+    <ClCompile Include="UDSChildNor.cpp" />
+    <ClCompile Include="UDSChildSet.cpp" />
+    <ClCompile Include="UDSDeleteitem.cpp" />
+    <ClCompile Include="UDSFaceID.cpp" />
+    <ClCompile Include="UDSFront.cpp" />
+    <ClCompile Include="uds_videoctrl1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UDS SmartCamera v1.0.0.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="UDS SmartCamera v1.0.0.rc" _x007B_CA859805-A3CE-4594-B019-BCBBE7F61D01_x007D_="CUds_videoctrl1" _x007B_CA859805-A3CE-4594-B019-BCBBE7F61E01_x007D_="CUds_videoctrl1" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
