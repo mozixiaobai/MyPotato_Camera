@@ -981,6 +981,46 @@ public:
 		InvokeHelper(0x8a, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, imagefile, txtfile);
 		return result;
 	}
+	long SetWaterMark(LPCTSTR watertext, LPCTSTR waterfont, long position, long fontsize, long rvalue, long gvalue, long bvalue, long sapceing, long open)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR VTS_I4 VTS_I4 VTS_I4 VTS_I4 VTS_I4 VTS_I4 VTS_I4 ;
+		InvokeHelper(0x8b, DISPATCH_METHOD, VT_I4, (void*)&result, parms, watertext, waterfont, position, fontsize, rvalue, gvalue, bvalue, sapceing, open);
+		return result;
+	}
+	CString OcrRecognizePro(LPCTSTR fileName, long mode)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR VTS_I4 ;
+		InvokeHelper(0x8c, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName, mode);
+		return result;
+	}
+	void DeleteFileEx(LPCTSTR fileName)
+	{
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x8d, DISPATCH_METHOD, VT_EMPTY, NULL, parms, fileName);
+	}
+	long SetDocOptimize(long bOpen)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x8e, DISPATCH_METHOD, VT_I4, (void*)&result, parms, bOpen);
+		return result;
+	}
+	long SetSubResolutionEx(long index, long guid)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 ;
+		InvokeHelper(0x8f, DISPATCH_METHOD, VT_I4, (void*)&result, parms, index, guid);
+		return result;
+	}
+	long SetResolutionPro(long index, long guid)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 ;
+		InvokeHelper(0x90, DISPATCH_METHOD, VT_I4, (void*)&result, parms, index, guid);
+		return result;
+	}
 
 // Properties
 //

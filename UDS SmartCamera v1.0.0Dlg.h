@@ -135,6 +135,7 @@ public:
 	BOOL            m_BBase64Cpt;        //Base64拍照
 	BOOL            m_BDcmCpt;           //DCM拍照
 	BOOL            m_BOfdCpt;           //OFD拍照
+	int             m_nOtherCpt;          //tga、pcx、ras
 	BOOL            m_BMerge;            //与主头合并
 	int             m_nMergeMode;        //合并方式
 	int             m_nMergeLocation;    //外部坐标   
@@ -376,4 +377,7 @@ public:
 	afx_msg void On32778RightRotateL();
 	afx_msg void On32779RightRotateR();
 	CString GenerateOFD(CString srcImg, CString dstImg);
+	CString GenerateOthers(CString srcImg, CString dstImg, int mode);
+	int m_nMainCodec; //主头视频编码
+	int m_nSubCodec; //副头视频编码
 };

@@ -713,11 +713,272 @@ public:
 		InvokeHelper(0x62, DISPATCH_METHOD, VT_I4, (void*)&result, parms, value, cAuto);
 		return result;
 	}
+	long GetAudioDevCount()
+	{
+		long result;
+		InvokeHelper(0x63, DISPATCH_METHOD, VT_I4, (void*)&result, NULL);
+		return result;
+	}
+	CString GetAudioDevName(long index)
+	{
+		CString result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x64, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, index);
+		return result;
+	}
+	long StartRecordWithAudio(long vidIndex, long audIndex, LPCTSTR fileName, long width, long height, long bitRate, long fps)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 VTS_BSTR VTS_I4 VTS_I4 VTS_I4 VTS_I4 ;
+		InvokeHelper(0x65, DISPATCH_METHOD, VT_I4, (void*)&result, parms, vidIndex, audIndex, fileName, width, height, bitRate, fps);
+		return result;
+	}
 	CString GetDeviceSnEx(long devIndex)
 	{
 		CString result;
 		static BYTE parms[] = VTS_I4 ;
-		InvokeHelper(0x63, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, devIndex);
+		InvokeHelper(0x66, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, devIndex);
+		return result;
+	}
+	long SelectDevice(long index)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x67, DISPATCH_METHOD, VT_I4, (void*)&result, parms, index);
+		return result;
+	}
+	long SetResolutionEx(long width, long height)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 ;
+		InvokeHelper(0x68, DISPATCH_METHOD, VT_I4, (void*)&result, parms, width, height);
+		return result;
+	}
+	CString GetResobyIndexEx(long index, long * width, long * height)
+	{
+		CString result;
+		static BYTE parms[] = VTS_I4 VTS_PI4 VTS_PI4 ;
+		InvokeHelper(0x69, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, index, width, height);
+		return result;
+	}
+	long GetImageDPI()
+	{
+		long result;
+		InvokeHelper(0x6a, DISPATCH_METHOD, VT_I4, (void*)&result, NULL);
+		return result;
+	}
+	CString UploadFileHttp(LPCTSTR filePath, LPCTSTR url)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x6b, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, filePath, url);
+		return result;
+	}
+	CString UploadFileFtp(LPCTSTR locFilePath, LPCTSTR ftpFileName, LPCTSTR ip, LPCTSTR us, LPCTSTR ps, LPCTSTR port)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x6c, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, locFilePath, ftpFileName, ip, us, ps, port);
+		return result;
+	}
+	long SetHttpPostString(LPCTSTR key, LPCTSTR valu)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x6d, DISPATCH_METHOD, VT_I4, (void*)&result, parms, key, valu);
+		return result;
+	}
+	CString ImageToBase64(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x6e, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	CString CaptureImageAndBase64(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x6f, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	void ZoomIn()
+	{
+		InvokeHelper(0x70, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
+	}
+	void ZoomOut()
+	{
+		InvokeHelper(0x71, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
+	}
+	void ReturnOrigin()
+	{
+		InvokeHelper(0x72, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
+	}
+	CString PlayVideo(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x73, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	long StartRunP(long index)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x74, DISPATCH_METHOD, VT_I4, (void*)&result, parms, index);
+		return result;
+	}
+	long CaptureCombineEx(LPCTSTR fileName, long m_iCombineType)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_I4 ;
+		InvokeHelper(0x75, DISPATCH_METHOD, VT_I4, (void*)&result, parms, fileName, m_iCombineType);
+		return result;
+	}
+	long ImageCombine(LPCTSTR filename1, LPCTSTR filename2, LPCTSTR comfilename, long m_iCombineType)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4 ;
+		InvokeHelper(0x76, DISPATCH_METHOD, VT_I4, (void*)&result, parms, filename1, filename2, comfilename, m_iCombineType);
+		return result;
+	}
+	CString GetAudioDisplayName(long index)
+	{
+		CString result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x77, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, index);
+		return result;
+	}
+	long SetSubCameraLocation(long location)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x78, DISPATCH_METHOD, VT_I4, (void*)&result, parms, location);
+		return result;
+	}
+	long ImagesCombinePdf(LPCTSTR filenames, LPCTSTR comfilename)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x79, DISPATCH_METHOD, VT_I4, (void*)&result, parms, filenames, comfilename);
+		return result;
+	}
+	long CaptureDICOM(LPCTSTR fileName)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x7a, DISPATCH_METHOD, VT_I4, (void*)&result, parms, fileName);
+		return result;
+	}
+	long ImagetoDicom(LPCTSTR imagefile, LPCTSTR dicomfile)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x7b, DISPATCH_METHOD, VT_I4, (void*)&result, parms, imagefile, dicomfile);
+		return result;
+	}
+	long DicomtoImage(LPCTSTR dicomfile, LPCTSTR imagefile)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x7c, DISPATCH_METHOD, VT_I4, (void*)&result, parms, dicomfile, imagefile);
+		return result;
+	}
+	long FilesCombineZip(LPCTSTR filenames, LPCTSTR comfilename)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x7d, DISPATCH_METHOD, VT_I4, (void*)&result, parms, filenames, comfilename);
+		return result;
+	}
+	long UpZip(LPCTSTR zipname, LPCTSTR foldername)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x7e, DISPATCH_METHOD, VT_I4, (void*)&result, parms, zipname, foldername);
+		return result;
+	}
+	CString QrCode(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x7f, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	long PdfToImage(LPCTSTR pdfname, long format, LPCTSTR pre)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_I4 VTS_BSTR ;
+		InvokeHelper(0x80, DISPATCH_METHOD, VT_I4, (void*)&result, parms, pdfname, format, pre);
+		return result;
+	}
+	CString OcrRecognize(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x81, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	CString BarCode(LPCTSTR fileName)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x82, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName);
+		return result;
+	}
+	CString BarCodeWithType(LPCTSTR fileName, long type)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR VTS_I4 ;
+		InvokeHelper(0x83, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, fileName, type);
+		return result;
+	}
+	long GetRectValue(long * left, long * top, long * right, long * bottom)
+	{
+		long result;
+		static BYTE parms[] = VTS_PI4 VTS_PI4 VTS_PI4 VTS_PI4 ;
+		InvokeHelper(0x84, DISPATCH_METHOD, VT_I4, (void*)&result, parms, left, top, right, bottom);
+		return result;
+	}
+	long SetRectValue(long left, long top, long right, long bottom)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 VTS_I4 VTS_I4 ;
+		InvokeHelper(0x85, DISPATCH_METHOD, VT_I4, (void*)&result, parms, left, top, right, bottom);
+		return result;
+	}
+	long SetMessage(long m_b)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x86, DISPATCH_METHOD, VT_I4, (void*)&result, parms, m_b);
+		return result;
+	}
+	long RefreshRect()
+	{
+		long result;
+		InvokeHelper(0x87, DISPATCH_METHOD, VT_I4, (void*)&result, NULL);
+		return result;
+	}
+	double SingleVarifyImage(LPCTSTR filename1, LPCTSTR filename2)
+	{
+		double result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x88, DISPATCH_METHOD, VT_R8, (void*)&result, parms, filename1, filename2);
+		return result;
+	}
+	long SetDisPlayInfo(long width, long height, double ratio)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 VTS_I4 VTS_R8 ;
+		InvokeHelper(0x89, DISPATCH_METHOD, VT_I4, (void*)&result, parms, width, height, ratio);
+		return result;
+	}
+	CString OcrRecognizeEx(LPCTSTR imagefile, LPCTSTR txtfile)
+	{
+		CString result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x8a, DISPATCH_METHOD, VT_BSTR, (void*)&result, parms, imagefile, txtfile);
 		return result;
 	}
 

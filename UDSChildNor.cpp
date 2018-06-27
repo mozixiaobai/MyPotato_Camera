@@ -175,6 +175,10 @@ BOOL CUDSChildNor::OnInitDialog()
 	m_conComFilemode.InsertString(5, _T("base64"));
 	m_conComFilemode.InsertString(6, _T("dcm"));
 	m_conComFilemode.InsertString(7, _T("ofd"));
+	m_conComFilemode.InsertString(8, _T("tga"));
+	m_conComFilemode.InsertString(9, _T("pcx"));
+	m_conComFilemode.InsertString(10, _T("ras"));
+
 	m_conComFilemode.SetCurSel(m_nIndexFile);
 
 	m_conComColormode.InsertString(0, _T("ºÚ°×"));
