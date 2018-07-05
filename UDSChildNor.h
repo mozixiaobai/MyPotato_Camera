@@ -47,6 +47,7 @@ public:
 	int   m_nIndexDPI;
 	int   m_nIndexFile;
 	int   m_nIndexColor;
+	int   m_nIndexCrop;
 	CWnd*   m_pWnd;
 	HWND    m_hWnd;
 	afx_msg void OnBnClickedChkAutocrt();
@@ -87,4 +88,6 @@ public:
 	afx_msg void OnClickedChkAutrotate();
 	afx_msg void OnClickedChkOptimize();
 	CString   m_strIniPath;
+	CComboBox m_conCropMode;
+	afx_msg void OnSelchangeCmbCropmode2();
 };

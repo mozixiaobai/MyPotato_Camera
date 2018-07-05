@@ -52,6 +52,7 @@ void CUDSChildNor::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_STA_EXP, m_conStaExpStr);
 	DDX_Control(pDX, IDC_CMB_AUDEO, m_conAudio);
 	DDX_Control(pDX, IDC_CMB_AUDEOFORMAT, m_conAudioFmt);
+	DDX_Control(pDX, IDC_CMB_CROPMODE2, m_conCropMode);
 }
 
 
@@ -75,6 +76,7 @@ BEGIN_MESSAGE_MAP(CUDSChildNor, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_CMB_AUDEOFORMAT, &CUDSChildNor::OnSelchangeCmbAudeoformat)
 	ON_BN_CLICKED(IDC_CHK_AUTROTATE, &CUDSChildNor::OnClickedChkAutrotate)
 	ON_BN_CLICKED(IDC_CHK_OPTIMIZE, &CUDSChildNor::OnClickedChkOptimize)
+	ON_CBN_SELCHANGE(IDC_CMB_CROPMODE2, &CUDSChildNor::OnSelchangeCmbCropmode2)
 END_MESSAGE_MAP()
 
 
@@ -154,6 +156,7 @@ BOOL CUDSChildNor::OnInitDialog()
 	tem_strRead.ReleaseBuffer();
 	::GetPrivateProfileString(_T("ParentCamera"), _T("AutoCrop"), _T("没有找到AutoCrop信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nAutoCrop   = _ttoi(tem_strRead);
+	m_nIndexCrop    = tem_nAutoCrop;
 	tem_strRead.ReleaseBuffer();
 	::GetPrivateProfileString(_T("ParentCamera"), _T("AutoExp"), _T("没有找到AutoExp信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	tem_nAutoExp    = _ttoi(tem_strRead);
@@ -186,13 +189,18 @@ BOOL CUDSChildNor::OnInitDialog()
 	m_conComColormode.InsertString(2, _T("彩色"));
 	m_conComColormode.SetCurSel(m_nIndexColor);
 
+	m_conCropMode.InsertString(0, _T("手动裁切"));
+	m_conCropMode.InsertString(1, _T("自动裁切"));
+	m_conCropMode.InsertString(2, _T("不裁切"));
+	m_conCropMode.SetCurSel(m_nIndexCrop);
+
 	m_conAudioFmt.InsertString(0, _T("mp4"));
 	m_conAudioFmt.InsertString(1, _T("wmv"));
 	m_conAudioFmt.InsertString(2, _T("avi"));
 	m_conAudioFmt.SetCurSel(0);
 
 	//2、---------------------------------------
-	((CButton*)GetDlgItem(IDC_CHK_AUTOCRT))->SetCheck(tem_nAutoCrop);
+//	((CButton*)GetDlgItem(IDC_CHK_AUTOCRT))->SetCheck(tem_nAutoCrop);
 //	((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(tem_nAutoExp);
 	((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(TRUE);
 	m_conSlidExpos.EnableWindow(FALSE);
@@ -369,9 +377,10 @@ HBRUSH CUDSChildNor::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	//Static静态控件-----------------
 	if (pWnd->GetDlgCtrlID()==IDC_STA_NAME || pWnd->GetDlgCtrlID()==IDC_STA_DPI || pWnd->GetDlgCtrlID()==IDC_STA_FILEMODE ||
-		pWnd->GetDlgCtrlID()==IDC_STA_COLORMODE || pWnd->GetDlgCtrlID()==IDC_STA_EXPOSURE || pWnd->GetDlgCtrlID()==IDC_STACHK_AUTOCRT||
+		pWnd->GetDlgCtrlID()==IDC_STA_COLORMODE || pWnd->GetDlgCtrlID()==IDC_STA_EXPOSURE || /*pWnd->GetDlgCtrlID()==IDC_STACHK_AUTOCRT||*/
 		pWnd->GetDlgCtrlID()==IDC_STACHK_AUTOEXP|| pWnd->GetDlgCtrlID()==IDC_STA_BRIGHT || pWnd->GetDlgCtrlID()==IDC_STA_AUDIO ||
-		pWnd->GetDlgCtrlID()==IDC_STA_AUDIOFORMAT || pWnd->GetDlgCtrlID()==IDC_STACHK_AUTOTOTATE || pWnd->GetDlgCtrlID()==IDC_STACHK_OPTIMIZE)
+		pWnd->GetDlgCtrlID()==IDC_STA_AUDIOFORMAT || pWnd->GetDlgCtrlID()==IDC_STACHK_AUTOTOTATE || pWnd->GetDlgCtrlID()==IDC_STACHK_OPTIMIZE||
+		pWnd->GetDlgCtrlID()==IDC_STA_ACROPMODE)
 	{
 		hbr = (HBRUSH)GetStockObject(NULL_BRUSH);
 		pDC->SetBkMode(TRANSPARENT);
@@ -400,7 +409,7 @@ HBRUSH CUDSChildNor::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SelectObject(&tem_Font);
 	}
 	//CheckBox美化----------------------
-	if (pWnd->GetDlgCtrlID() == IDC_CHK_AUTOEXP || pWnd->GetDlgCtrlID() == IDC_CHK_AUTOCRT)
+	if (pWnd->GetDlgCtrlID() == IDC_CHK_AUTOEXP /*|| pWnd->GetDlgCtrlID() == IDC_CHK_AUTOCRT*/)
 	{
 		pDC->SetTextColor(RGB(255, 255, 255));
 
@@ -420,6 +429,7 @@ HBRUSH CUDSChildNor::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
 	return hbr;
 }
+
 
 BOOL CUDSChildNor::PreTranslateMessage(MSG* pMsg)
 {
@@ -607,6 +617,14 @@ void CUDSChildNor::OnBnClickedChkAutocrt()
 }
 
 
+void CUDSChildNor::OnSelchangeCmbCropmode2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int tem_nCurSel = m_conCropMode.GetCurSel();
+	::SendMessage(m_hWnd, WM_SWITCH, tem_nCurSel, 4); //自动裁切打开
+}
+
+
 void CUDSChildNor::OnBnClickedChkAutoexp()
 {
 	// TODO: 在此添加控件通知处理程序代码	
@@ -676,3 +694,4 @@ void CUDSChildNor::OnClickedChkOptimize()
 	}
 	::SendMessage(m_hWnd, WM_SWITCH, tem_nOptimize, 12);
 }
+

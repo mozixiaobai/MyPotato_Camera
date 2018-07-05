@@ -1021,6 +1021,79 @@ public:
 		InvokeHelper(0x90, DISPATCH_METHOD, VT_I4, (void*)&result, parms, index, guid);
 		return result;
 	}
+	void SetAutoBarcode(long Code25, long Code39, long Code128, long Pdf417, long QrCode)
+	{
+		static BYTE parms[] = VTS_I4 VTS_I4 VTS_I4 VTS_I4 VTS_I4 ;
+		InvokeHelper(0x91, DISPATCH_METHOD, VT_EMPTY, NULL, parms, Code25, Code39, Code128, Pdf417, QrCode);
+	}
+	long SetWaterMarkOpacity(double opacity)
+	{
+		long result;
+		static BYTE parms[] = VTS_R8 ;
+		InvokeHelper(0x92, DISPATCH_METHOD, VT_I4, (void*)&result, parms, opacity);
+		return result;
+	}
+	long StartDevice(long szDeviceIndex)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x93, DISPATCH_METHOD, VT_I4, (void*)&result, parms, szDeviceIndex);
+		return result;
+	}
+	long AdjuestFaceCrop(BOOL bCrop)
+	{
+		long result;
+		static BYTE parms[] = VTS_BOOL ;
+		InvokeHelper(0x94, DISPATCH_METHOD, VT_I4, (void*)&result, parms, bCrop);
+		return result;
+	}
+	CString GetOcxVersion()
+	{
+		CString result;
+		InvokeHelper(0x95, DISPATCH_METHOD, VT_BSTR, (void*)&result, NULL);
+		return result;
+	}
+	long SetCutPageType(long szCutPageTypeIndex)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x96, DISPATCH_METHOD, VT_I4, (void*)&result, parms, szCutPageTypeIndex);
+		return result;
+	}
+	CString GetMyDocument()
+	{
+		CString result;
+		InvokeHelper(0x97, DISPATCH_METHOD, VT_BSTR, (void*)&result, NULL);
+		return result;
+	}
+	long CaptureOfd(LPCTSTR fileName)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR ;
+		InvokeHelper(0x98, DISPATCH_METHOD, VT_I4, (void*)&result, parms, fileName);
+		return result;
+	}
+	long ImagetoOfd(LPCTSTR imagefile, LPCTSTR ofdfile)
+	{
+		long result;
+		static BYTE parms[] = VTS_BSTR VTS_BSTR ;
+		InvokeHelper(0x99, DISPATCH_METHOD, VT_I4, (void*)&result, parms, imagefile, ofdfile);
+		return result;
+	}
+	long SetAutoFinished(long m_b)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x9a, DISPATCH_METHOD, VT_I4, (void*)&result, parms, m_b);
+		return result;
+	}
+	long SetCompanyInfo(long bShow)
+	{
+		long result;
+		static BYTE parms[] = VTS_I4 ;
+		InvokeHelper(0x9b, DISPATCH_METHOD, VT_I4, (void*)&result, parms, bShow);
+		return result;
+	}
 
 // Properties
 //

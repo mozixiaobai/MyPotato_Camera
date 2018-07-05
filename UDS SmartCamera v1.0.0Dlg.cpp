@@ -458,6 +458,7 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 		CDialog::OnOK();   //1027XP系统上存在错误，将sendmessage修改为onok
 		return FALSE;
 	}
+	m_conVideoOcx.SetCompanyInfo(1);
 	m_straDeviceName.RemoveAll();
 	int      tem_nDevCount = m_conVideoOcx.GetDeviceCount();//当前设备数量
 	m_nDeviceNumber = tem_nDevCount;
@@ -1521,6 +1522,10 @@ void CUDSSmartCamerav100Dlg::LoadIniFile(void)
 	case 1:
 		m_BAutoCrop        = TRUE;
 		m_BManualCrop      = FALSE;
+		break;
+	case 2:
+		m_BAutoCrop = FALSE;
+		m_BManualCrop = FALSE;
 		break;
 	default:
 		m_BAutoCrop        = TRUE;
@@ -2763,20 +2768,30 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 		::WritePrivateProfileString(_T("ParentCamera"), _T("ColorMode"), tem_strIniInfo, m_strIniPath); 
 		break;
 	case 4:
-		m_BAutoCrop   = tem_nSelect;
-		m_BManualCrop = !tem_nSelect;
 		if (tem_nSelect == 1)
 		{
 			//开启自动裁切
 			m_conVideoOcx.ManualImageCrop(FALSE);
 			m_conVideoOcx.AdjuestImageCrop(TRUE);
+			m_BAutoCrop   = tem_nSelect;
+			m_BManualCrop = !tem_nSelect;
 		} 
-		else
+		else if(tem_nSelect == 0)
 		{
 			//开启手动裁切
 			m_conVideoOcx.AdjuestImageCrop(FALSE);
 			m_conVideoOcx.ManualImageCrop(TRUE);
 			m_conVideoOcx.SetMessage(1);
+			m_BAutoCrop   = tem_nSelect;
+			m_BManualCrop = !tem_nSelect;
+		}
+		else
+		{
+			//不裁切
+			m_conVideoOcx.AdjuestImageCrop(FALSE);
+			m_conVideoOcx.ManualImageCrop(FALSE);
+			m_BAutoCrop   = FALSE;
+			m_BManualCrop = FALSE;
 		}
 		
 
