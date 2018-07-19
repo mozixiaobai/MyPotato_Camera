@@ -275,9 +275,13 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_BCamera1200= FALSE;
 	m_BCamera1300= FALSE;
 	m_BCameraTo1500 = FALSE;
+	m_BCamera800b = FALSE;
+	
 
 	m_BAutoRotate = FALSE;
 	m_BOptimize   = FALSE;
+	m_BMainDpiOpen = FALSE;   
+	m_nCurDPI = 100;
 	
 	m_strPID200 = _T("3420");
 	m_strVID200 = _T("0AC8");
@@ -566,6 +570,7 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 		int       tem_nGS16_VID  = -1;
 		int       tem_nPID800Un = -1;
 		int       tem_nVID800Un = -1;
+		
 		if (m_lReturnCode == 0)
 		{
 			//设备打开成功，首先获取设备PID_VID
@@ -593,9 +598,11 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 			tem_nGS16_VID  = tem_strPIDVID.Find(m_strGS16_VID);
 			tem_nPID800Un = tem_strPIDVID.Find(m_strPID800Un);
 			tem_nVID800Un = tem_strPIDVID.Find(m_strVID800Un);
+
+			
 			CString   tem_strResolution = _T("");
 
-			if ((tem_nPID800!=-1 && tem_nVID800!=-1) || (tem_nPID800b!=-1 && tem_nVID800b!=-1) || (tem_nPID800GS!=-1 && tem_nVID800GS!=-1) || 
+			if ((tem_nPID800!=-1 && tem_nVID800!=-1) || (tem_nPID800GS!=-1 && tem_nVID800GS!=-1) || 
 				(tem_nPID800Un!=-1 && tem_nVID800Un!=-1))
 			{
 				//该设备为指定设备，添加指定分辨率
@@ -628,6 +635,55 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 					m_conVideoOcx.SetResolutionPro(m_nLastUsedResolu, m_nMainCodec);
 				}
 				
+			}
+			else if (tem_nPID800b!=-1 && tem_nVID800b!=-1)
+			{
+				//800W->1000W, 800W->1600W
+				m_BCamera800b = TRUE;
+				int    tem_nResCount = m_conVideoOcx.GetResCount();  //设备分量率数量
+				m_nInterpolateReso   = tem_nResCount;
+				for (int i=0; i<tem_nResCount; i++)
+				{
+
+					tem_strResolution = m_conVideoOcx.GetResolution(i);
+					if (tem_strResolution == _T("3264*2448"))
+					{
+						tem_strResolution += _T("(800W)");
+					}
+					//判断是否为800W分辨率
+					m_iChildNor.m_conComReso.InsertString(i, tem_strResolution);
+
+				}
+				tem_strResolution = _T("3664*2744(1000W)");
+				m_iChildNor.m_conComReso.InsertString(-1, tem_strResolution);
+
+				tem_strResolution = _T("4680*3510(1600W)");
+				m_iChildNor.m_conComReso.InsertString(-1, tem_strResolution);
+
+				//如果设置当前分辨率索引大于总个数，说明该分辨率为插值分辨率，应设置为硬件最大分辨率
+				m_iChildNor.m_conComReso.SetCurSel(m_nLastUsedResolu);
+				if (m_nLastUsedResolu == m_nInterpolateReso)
+				{
+					//找出最大分辨率对应索引
+					int  tem_nMaxIndex = GetmaxResoindex();
+					m_conVideoOcx.SetResolutionPro(tem_nMaxIndex, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(3664, 2744, 0);
+				}
+				else if (m_nLastUsedResolu == (m_nInterpolateReso+1))
+				{
+					//找出最大分辨率对应索引
+					int  tem_nMaxIndex = GetmaxResoindex();
+					m_conVideoOcx.SetResolutionPro(tem_nMaxIndex, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(4680, 3510, 0);
+				}
+				else
+				{
+					m_conVideoOcx.SetResolutionPro(m_nLastUsedResolu, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(0, 0, 0);
+				}
+				
+				
+
 			}
 			else if (tem_nPID500!=-1 && tem_nVID500!=-1)
 			{
@@ -1830,6 +1886,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 	int       tem_nSite;            //视频分辨率拆分
 	int n=-1;
 	int tem_ndpi=0;
+	
 
 	switch(tem_nOperation)
 	{
@@ -1879,6 +1936,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 			int       tem_nVID800Un = -1;
 			
 			
+			
 			//设备打开成功，首先获取设备PID_VID
 			tem_strPIDVID = m_conVideoOcx.GetDevDisplayName(m_nLastUsedScanner);
 			tem_strPIDVID.MakeUpper();
@@ -1905,7 +1963,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 			tem_nVID800Un = tem_strPIDVID.Find(m_strVID800Un);
 			
 			CString   tem_strResolution = _T("");
-			if ((tem_nPID800!=-1 && tem_nVID800!=-1) || (tem_nPID800b!=-1 && tem_nVID800b!=-1) || (tem_nPID800GS!=-1 && tem_nVID800GS!=-1) ||
+			if ((tem_nPID800!=-1 && tem_nVID800!=-1) || (tem_nPID800GS!=-1 && tem_nVID800GS!=-1) ||
 				(tem_nPID800Un!=-1 && tem_nVID800Un!=-1))
 			{
 				//该设备为指定设备，添加指定分辨率
@@ -1937,6 +1995,48 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 					m_conVideoOcx.SetResolutionPro(m_nLastUsedResolu, m_nMainCodec);
 				}
 				m_iChildNor.m_conComReso.SetCurSel(m_nLastUsedResolu);
+			}
+			else if (tem_nPID800b!=-1 && tem_nVID800b!=-1)
+			{
+				//该设备为指定设备，添加指定分辨率
+				m_BCamera800b = TRUE;
+				int    tem_nResCount = m_conVideoOcx.GetResCount();  //设备分量率数量
+				m_nInterpolateReso   = tem_nResCount;
+				for (int i=0; i<tem_nResCount; i++)
+				{
+
+					tem_strResolution = m_conVideoOcx.GetResolution(i);
+					m_iChildNor.m_conComReso.InsertString(i, tem_strResolution);
+				}
+				tem_strResolution = _T("3664*2744(1000W)");
+				m_iChildNor.m_conComReso.InsertString(-1, tem_strResolution);
+
+				tem_strResolution = _T("4680*3510(1600W)");
+				m_iChildNor.m_conComReso.InsertString(-1, tem_strResolution);
+
+				//如果设置当前分辨率索引大于总个数，说明该分辨率为插值分辨率，应设置为硬件最大分辨率
+				m_iChildNor.m_conComReso.SetCurSel(m_nLastUsedResolu);
+
+				m_nLastUsedResolu = m_conVideoOcx.GetCurResoIndex();
+				if (m_nLastUsedResolu == m_nInterpolateReso)
+				{
+					//找出最大分辨率对应索引
+					int  tem_nMaxIndex = GetmaxResoindex();
+					m_conVideoOcx.SetResolutionPro(tem_nMaxIndex, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(3664, 2744, 0);
+				}
+				else if (m_nLastUsedResolu == (m_nInterpolateReso+1))
+				{
+					//找出最大分辨率对应索引
+					int  tem_nMaxIndex = GetmaxResoindex();
+					m_conVideoOcx.SetResolutionPro(tem_nMaxIndex, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(4680, 3510, 0);
+				}
+				else
+				{
+					m_conVideoOcx.SetResolutionPro(m_nLastUsedResolu, m_nMainCodec);
+					m_conVideoOcx.SetDisPlayInfo(0, 0, 0);
+				}
 			}
 			else if (tem_nPID500!=-1 && tem_nVID500!=-1)
 			{
@@ -2304,6 +2404,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 				m_BCamera200 = FALSE;
 				m_BCamera500  = FALSE;
 				m_BCamera800  = FALSE;
+				m_BCamera800b = FALSE;
 				m_BCamera1200 = FALSE;
 				m_BCamera1300 = FALSE;
 				m_BCameraTo1500 = FALSE;
@@ -2385,6 +2486,25 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 				else
 				{
 //					m_conVideoOcx.SetResolution(tem_nSelect);
+					m_conVideoOcx.SetResolutionPro(tem_nSelect, m_nMainCodec);
+				}
+				//将选择的分辨率写入ini配置文件
+				tem_strIniInfo.Format(_T("%d"), tem_nSelect);
+				::WritePrivateProfileString(_T("ParentCamera"), _T("Resolution"), tem_strIniInfo, m_strIniPath); 
+			}
+			else if (m_BCamera800b)
+			{
+				//800W设备
+				m_nLastUsedResolu = tem_nSelect;
+				if (m_nLastUsedResolu == m_nInterpolateReso || m_nLastUsedResolu == m_nInterpolateReso+1)
+				{
+					//此时为插值分辨率，设置为最大分辨率
+					int  tem_nMaxIndex = GetmaxResoindex();
+					m_conVideoOcx.SetResolutionPro(tem_nMaxIndex, m_nMainCodec);
+
+				}
+				else
+				{
 					m_conVideoOcx.SetResolutionPro(tem_nSelect, m_nMainCodec);
 				}
 				//将选择的分辨率写入ini配置文件
@@ -2859,6 +2979,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 //		tem_strVideoName += ".mp4";
 		tem_strVideoName += m_strVideoFormat;
 		tem_strWholeName = m_strDefaultPath + tem_strVideoName;
+
 		//增加宽高----------------------------------------------------------------
 		m_iChildNor.m_conComReso.GetWindowText(tem_strCurResolution);
 		tem_nSite = tem_strCurResolution.Find(_T("*"));
@@ -2870,7 +2991,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 
 		//更新音频是设备索引
 		m_nAudioIndex = tem_nSelect;
-		n = m_conVideoOcx.StartRecord(m_nLastUsedScanner, tem_strWholeName, 640, 480, m_nVideoBit, m_nVideoFPS);
+//		n = m_conVideoOcx.StartRecord(m_nLastUsedScanner, tem_strWholeName, 640, 480, m_nVideoBit, m_nVideoFPS);
 		m_conVideoOcx.StartRecordWithAudio(m_nLastUsedScanner, m_nAudioIndex, tem_strWholeName, 640, 480, m_nVideoBit, m_nVideoFPS);
 		
 //		m_conVideoOcx.StartRecordEx(tem_strWholeName, m_nVideoBit, m_nVideoFPS);
@@ -2974,6 +3095,10 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 		{
 			m_strVideoFormat = _T(".avi");
 		}
+		else if (tem_nSelect==3)
+		{
+			m_strVideoFormat = _T(".asf");
+		}
 		break;
 	case 11:
 		if (tem_nSelect == 0)
@@ -2994,6 +3119,25 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 		{
 			m_BOptimize = TRUE;
 		}
+		break;
+	case 13:
+		//DPI开关
+		if (tem_nSelect == 1)
+		{
+			m_BMainDpiOpen = TRUE;
+		} 
+		else
+		{
+			m_BMainDpiOpen = FALSE;
+		}
+		break;
+	case 14:
+		//DPI值设定
+		m_nCurDPI = tem_nSelect;
+		break;
+	case 15:
+		MessageBox(_T("校正"));
+		m_conVideoOcx.CorrectionDPI();
 		break;
 	default:
 		break;
@@ -3098,6 +3242,12 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 0);
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+			
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
+
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3112,6 +3262,79 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			//普通拍照转换为PDF文件
 
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+		{
+			//获取原图像名、插值图像名、输出PDF名
+			int       tem_nIndex        = tem_strFileName.ReverseFind(_T('.'));
+
+			CString   tem_strPDFPreName = tem_strFileName;
+			tem_strPDFPreName = tem_strPDFPreName.Mid(0, tem_nIndex);
+
+			CString   tem_strImgName1 = tem_strPDFPreName;
+			tem_strImgName1 += _T(".jpg");
+			CString   tem_strImgName2 = _T("PDF");
+			tem_strImgName2 += tem_strPDFPreName;
+			tem_strImgName2 += _T(".jpg");
+
+			CString   tem_strPDFImgPath1 = m_strBufferPath + tem_strImgName1;    //拍照图像以及路径
+			CString   tem_strPDFImgPath2 = m_strBufferPath + tem_strImgName2;
+
+			m_conVideoOcx.CaptureImage(tem_strPDFImgPath1);
+			//自动旋转--------------------------------------------
+			Self_RecognizeOrit(tem_strPDFImgPath1, m_BAutoRotate);
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strPDFImgPath1, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+
+			if (m_nLastUsedResolu==m_nInterpolateReso)
+			{
+				//800->1000
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 0);
+			} 
+			else if (m_nLastUsedResolu==m_nInterpolateReso+1)
+			{
+				//800->1600
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 7);
+			}
+			
+			
+			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
+
+			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
+
+
+			m_vcFileName.push_back(tem_strName);
+			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcBussName.push_back(tem_strWholeName);
+			ShowImageSize(tem_strWholeName);
+
+			DeleteFile(tem_strPDFImgPath1);
+			DeleteFile(tem_strPDFImgPath2);
+			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
 		}
 		else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 		{
@@ -3158,7 +3381,14 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			}
 			
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 3);
+
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
+
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3219,6 +3449,12 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 1);
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
+
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3279,6 +3515,12 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 2);
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
+
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3338,6 +3580,12 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			}
 
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath1, tem_strName);    //保存缩略图
+
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath1, tem_strPDFImgPath1, m_nCurDPI);
+			}
+
 			m_vcFileName.push_back(tem_strName);
 			m_vcWholeName.push_back(tem_strThumbPath); 
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -3398,11 +3646,17 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			}
 
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath1, tem_strName);    //保存缩略图
+
+			
 			m_vcFileName.push_back(tem_strName);
 			m_vcWholeName.push_back(tem_strThumbPath); 
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
 
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 5);
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3463,6 +3717,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
 
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 6);
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath2, tem_strPDFImgPath2, m_nCurDPI);
+			}
 			tem_strWholeName = GeneratePDF(tem_strPDFImgPath2, tem_strWholeName);
 
 
@@ -3512,6 +3770,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			}
 
 			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath1, tem_strName);    //保存缩略图
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strPDFImgPath1, tem_strPDFImgPath1, m_nCurDPI);
+			}
 			m_vcFileName.push_back(tem_strName);
 			m_vcWholeName.push_back(tem_strThumbPath); 
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -3594,6 +3856,71 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
             ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
  			m_nPDfimg++;
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+		{
+			//800W设备
+			//原图、插值图、txt文件
+			CString   tem_strImgName1 = tem_strName;     //原图像名
+			tem_strImgName1 += _T(".jpg");
+			CString   tem_strImgName2 = _T("TXT");       //插值图像名
+			tem_strImgName2 += tem_strName;
+			tem_strImgName2 += _T(".jpg");
+
+			CString   tem_strTXTImgPath1 = m_strBufferPath + tem_strImgName1;    //原图像路径+图像名
+			CString   tem_strTXTImgPath2 = m_strBufferPath + tem_strImgName2;    //插值图像路径+图像名
+
+			m_conVideoOcx.CaptureImage(tem_strTXTImgPath1);
+			//自动旋转--------------------------------------------
+			Self_RecognizeOrit(tem_strTXTImgPath1, m_BAutoRotate);
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strTXTImgPath1, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strTXTImgPath1, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strTXTImgPath1, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+			if (m_nLastUsedResolu==m_nInterpolateReso)
+			{
+				//800->1000
+				tem_strTXTImgPath2 = InterPolateImage(tem_strTXTImgPath1, tem_strTXTImgPath2, 0);
+			} 
+			else if (m_nLastUsedResolu==m_nInterpolateReso+1)
+			{
+				//800->1600
+				tem_strTXTImgPath2 = InterPolateImage(tem_strTXTImgPath1, tem_strTXTImgPath2, 7);
+			}
+			
+			tem_strThumbPath = GetThumbPath(tem_strTXTImgPath2, tem_strName);    //保存缩略图
+			tem_strWholeName = GenerateBase64(tem_strTXTImgPath2, tem_strWholeName);
+
+			m_vcFileName.push_back(tem_strName);
+			m_vcWholeName.push_back(tem_strThumbPath);      //PDF解析出首页，将图像地址存放至该vector
+			m_vcBussName.push_back(tem_strWholeName);
+
+			DeleteFile(tem_strTXTImgPath1);
+			DeleteFile(tem_strTXTImgPath2);
+
+			ShowImageSize(tem_strWholeName);
+			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+			m_nPDfimg++;
+
+
+			
 		}
 		else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 		{
@@ -4030,12 +4357,17 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			char*     tem_cTime = T2A(tem_strDcmInfo);	
 
 			//DCM名转为JPG名
+			tem_strTemporary = m_strBufferPath;
+			tem_strTemporary += _T("dcm_");
+			tem_strTemporary += tem_strName;                               //原尺寸图像
+			tem_strTemporary += _T(".jpg");
+
+			/*
 			tem_strTemporary = tem_strWholeName;  //.dcm
 			tem_nSite        = tem_strTemporary.ReverseFind('.');
 			tem_strTemporary = tem_strTemporary.Mid(0, tem_nSite);
 			tem_strTemporary+= ".jpg";
-		//	tem_strTemporary+= ".bmp";
-
+			*/
 
 			if (m_BCamera800 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -4077,6 +4409,53 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 				DeleteFile(tem_strSrcImg);
 
+			}
+			else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+			{
+				//800W设备
+				CString     tem_strSrcImg = m_strBufferPath;
+				tem_strSrcImg += tem_strName;                               //原尺寸图像
+				tem_strSrcImg += _T(".jpg");	
+
+				m_conVideoOcx.CaptureImage(tem_strSrcImg);             //拍摄原图
+				//自动旋转--------------------------------------------
+				Self_RecognizeOrit(tem_strSrcImg, m_BAutoRotate);
+				//文档优化--------------------------------------------
+				if (m_BOptimize)
+				{
+					CxImage   tem_cxSrcImg;
+					tem_cxSrcImg.Load(tem_strSrcImg, CMAX_IMAGE_FORMATS);
+
+					float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+					if (tem_fColorPer>=m_fColorPercentage)
+					{
+						//彩色图像
+						Self_DocOptimize(tem_cxSrcImg, tem_strSrcImg, m_BOptimize, m_nOptBright, m_nOptContrast);
+					} 
+					else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+					{
+						//黑白图像
+						Self_DocOptimize2(tem_cxSrcImg, tem_strSrcImg, m_BOptimize);
+					}
+					//否则为二值图像，不做优化
+				}
+				if (m_nLastUsedResolu==m_nInterpolateReso)
+				{
+					tem_strTemporary = InterPolateImage(tem_strSrcImg, tem_strTemporary, 0);
+				} 
+				else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+				{
+					tem_strTemporary = InterPolateImage(tem_strSrcImg, tem_strTemporary, 7);
+				}
+				
+				m_vcFileName.push_back(tem_strName);
+				tem_strThumbPath = GetThumbPath(tem_strTemporary, tem_strName);    //保存缩略图
+				m_vcWholeName.push_back(tem_strThumbPath);                         //显示缩略图
+				m_vcDeleteBuffer.push_back(tem_strTemporary);
+
+				DeleteFile(tem_strSrcImg);
 			}
 			else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -4438,6 +4817,74 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			//普通拍照转换为PDF文件
 
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+		{
+			//800W设备
+			//tem_strFileName为pdf文件名+后缀
+			//获取原图像名、插值图像名、输出PDF名
+			int       tem_nIndex        = tem_strFileName.ReverseFind(_T('.'));
+
+			CString   tem_strPDFPreName = tem_strFileName;
+			tem_strPDFPreName = tem_strPDFPreName.Mid(0, tem_nIndex);
+
+			CString   tem_strImgName1 = tem_strPDFPreName;
+			tem_strImgName1 += _T(".jpg");
+			CString   tem_strImgName2 = _T("PDF");
+			tem_strImgName2 += tem_strPDFPreName;
+			tem_strImgName2 += _T(".jpg");
+
+			CString   tem_strPDFImgPath1 = m_strBufferPath + tem_strImgName1;    //拍照图像以及路径
+			CString   tem_strPDFImgPath2 = m_strBufferPath + tem_strImgName2;
+
+			m_conVideoOcx.CaptureImage(tem_strPDFImgPath1);
+			//自动旋转--------------------------------------------
+			Self_RecognizeOrit(tem_strPDFImgPath1, m_BAutoRotate);
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strPDFImgPath1, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+
+			if (m_nLastUsedResolu==m_nInterpolateReso)
+			{
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 0);
+			} 
+			else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+			{
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 7);
+			}
+			
+			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+			tem_strWholeName = GenerateOFD(tem_strPDFImgPath2, tem_strWholeName); 
+
+
+			m_vcFileName.push_back(tem_strName);
+			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcBussName.push_back(tem_strWholeName);
+			ShowImageSize(tem_strWholeName);
+
+			DeleteFile(tem_strPDFImgPath1);
+			//			DeleteFile(tem_strPDFImgPath2);
+			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+
+			//普通拍照转换为PDF文件
 		}
 		else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 		{
@@ -4903,7 +5350,11 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 
 			m_vcFileName.push_back(tem_strName);
-			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcWholeName.push_back(tem_strThumbPath);  
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -4913,6 +5364,78 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			//普通拍照转换为PDF文件
 
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+		{
+			//800W设备
+			//tem_strFileName为pdf文件名+后缀
+			//获取原图像名、插值图像名、输出PDF名
+			int       tem_nIndex        = tem_strFileName.ReverseFind(_T('.'));
+
+			CString   tem_strPDFPreName = tem_strFileName;
+			tem_strPDFPreName = tem_strPDFPreName.Mid(0, tem_nIndex);
+
+			CString   tem_strImgName1 = tem_strPDFPreName;
+			tem_strImgName1 += _T(".jpg");
+			CString   tem_strImgName2 = _T("PDF");
+			tem_strImgName2 += tem_strPDFPreName;
+			tem_strImgName2 += _T(".jpg");
+
+			CString   tem_strPDFImgPath1 = m_strBufferPath + tem_strImgName1;    //拍照图像以及路径
+			CString   tem_strPDFImgPath2 = m_strBufferPath + tem_strImgName2;
+
+			m_conVideoOcx.CaptureImage(tem_strPDFImgPath1);
+			//自动旋转--------------------------------------------
+			Self_RecognizeOrit(tem_strPDFImgPath1, m_BAutoRotate);
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strPDFImgPath1, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strPDFImgPath1, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+
+			if (m_nLastUsedResolu==m_nInterpolateReso)
+			{
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 0);
+			} 
+			else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+			{
+				tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 7);
+			}
+			
+			tem_strThumbPath = GetThumbPath(tem_strPDFImgPath2, tem_strName);    //保存缩略图
+			tem_strWholeName = GenerateOthers(tem_strPDFImgPath2, tem_strWholeName, m_nOtherCpt);
+
+
+			m_vcFileName.push_back(tem_strName);
+			m_vcWholeName.push_back(tem_strThumbPath);  
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
+			m_vcBussName.push_back(tem_strWholeName);
+			ShowImageSize(tem_strWholeName);
+
+			DeleteFile(tem_strPDFImgPath1);
+			DeleteFile(tem_strPDFImgPath2);
+			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+
+			//普通拍照转换为PDF文件
 		}
 		else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 		{
@@ -4964,7 +5487,11 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 
 			m_vcFileName.push_back(tem_strName);
-			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcWholeName.push_back(tem_strThumbPath);  
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5024,7 +5551,11 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 
 			m_vcFileName.push_back(tem_strName);
-			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcWholeName.push_back(tem_strThumbPath);     
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5084,7 +5615,11 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 
 			m_vcFileName.push_back(tem_strName);
-			m_vcWholeName.push_back(tem_strThumbPath);      
+			m_vcWholeName.push_back(tem_strThumbPath); 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5147,7 +5682,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			tem_strWholeName = GenerateOthers(tem_strPDFImgPath2, tem_strWholeName, m_nOtherCpt);
 
 
-
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5206,6 +5744,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 5);
 			tem_strWholeName = GenerateOthers(tem_strPDFImgPath2, tem_strWholeName, m_nOtherCpt);
 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5264,6 +5806,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			tem_strPDFImgPath2 = InterPolateImage(tem_strPDFImgPath1, tem_strPDFImgPath2, 6);
 			tem_strWholeName = GenerateOthers(tem_strPDFImgPath2, tem_strWholeName, m_nOtherCpt);
 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5315,6 +5861,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			tem_strWholeName = GenerateOthers(tem_strPDFImgPath1, tem_strWholeName, m_nOtherCpt);
 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5362,6 +5912,59 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			m_vcFileName.push_back(tem_strName);
 			tem_strThumbPath = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
+			m_vcBussName.push_back(tem_strWholeName);
+			ShowImageSize(tem_strWholeName);
+			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+		{
+			//800W设备
+			m_conVideoOcx.CaptureImage(tem_strSrcImageName);
+			//自动旋转--------------------------------------------
+			Self_RecognizeOrit(tem_strSrcImageName, m_BAutoRotate);
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strSrcImageName, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strSrcImageName, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strSrcImageName, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+			if (m_nLastUsedResolu==m_nInterpolateReso)
+			{
+				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 0);
+			} 
+			else if(m_nLastUsedResolu==(m_nInterpolateReso+1))
+			{
+				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 7);
+			}
+
+			
+			DeleteFile(tem_strSrcImageName);
+			m_vcFileName.push_back(tem_strName);
+			tem_strThumbPath = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
+			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -5399,6 +6002,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			m_vcFileName.push_back(tem_strName);
 			tem_strThumbPath = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -5436,6 +6043,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			m_vcFileName.push_back(tem_strName);
 			tem_strThumbPath = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -5474,6 +6085,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			DeleteFile(tem_strSrcImageName);
 			
 			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -5513,7 +6128,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 
 			tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 4);
 			DeleteFile(tem_strSrcImageName);
-			
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			
@@ -5554,6 +6172,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 5);
 			DeleteFile(tem_strSrcImageName);
 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5594,6 +6216,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 			tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 6);
 			DeleteFile(tem_strSrcImageName);
 
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 
@@ -5642,9 +6268,16 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 //			Self_DocOptimize(tem_strWholeName, m_BOptimize, m_nOptBright, m_nOptContrast);
 //			Self_DocOptimize2(tem_strWholeName, m_BOptimize);
 
+			//DPI插值
+
+
 			m_vcFileName.push_back(tem_strName);
 			tem_strThumbPath = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
-			m_vcWholeName.push_back(tem_strThumbPath);                         //存储缩略图，用于显示
+			m_vcWholeName.push_back(tem_strThumbPath);    			//存储缩略图，用于显示
+			if (m_BMainDpiOpen)
+			{
+				Self_SetDPI(tem_strWholeName, tem_strWholeName, m_nCurDPI);
+			}
 			m_vcBussName.push_back(tem_strWholeName);
 			ShowImageSize(tem_strWholeName);
 			ThumbaiList(m_nThumbWidth, m_nThumbHeight);
@@ -5768,8 +6401,12 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapbar()
 	{
 		sndPlaySound(_T("CameraSound.WAV"), NULL);
 	}
-
+	m_conVideoOcx.SetAutoBarcode(1, 1, 1, 1, 1);
 	if (m_BCamera800 && m_nLastUsedResolu==m_nInterpolateReso)
+	{
+		m_conVideoOcx.CaptureBarcode(tem_strSrcImagePath, tem_nFormat);
+	}
+	else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
 	{
 		m_conVideoOcx.CaptureBarcode(tem_strSrcImagePath, tem_nFormat);
 	}
@@ -5855,6 +6492,31 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCap2side()
 		}
 
 		if (m_BCamera800 && m_nLastUsedResolu == m_nInterpolateReso)
+		{
+			tem_lReturn = m_conVideoOcx.CaptureCombine(tem_strSrcImageName);    //将合并后的图像进行转换
+			//文档优化--------------------------------------------
+			if (m_BOptimize)
+			{
+				CxImage   tem_cxSrcImg;
+				tem_cxSrcImg.Load(tem_strSrcImageName, CMAX_IMAGE_FORMATS);
+
+				float tem_fColorPer = Self_GetColorPercentage(tem_cxSrcImg, m_BOptimize);
+
+
+				if (tem_fColorPer>=m_fColorPercentage)
+				{
+					//彩色图像
+					Self_DocOptimize(tem_cxSrcImg, tem_strSrcImageName, m_BOptimize, m_nOptBright, m_nOptContrast);
+				} 
+				else if (tem_fColorPer>=0 && tem_fColorPer<m_fColorPercentage)
+				{
+					//黑白图像
+					Self_DocOptimize2(tem_cxSrcImg, tem_strSrcImageName, m_BOptimize);
+				}
+				//否则为二值图像，不做优化
+			}
+		}
+		else if (m_BCamera800b && (m_nLastUsedResolu == m_nInterpolateReso || m_nLastUsedResolu == m_nInterpolateReso+1))
 		{
 			tem_lReturn = m_conVideoOcx.CaptureCombine(tem_strSrcImageName);    //将合并后的图像进行转换
 			//文档优化--------------------------------------------
@@ -6065,6 +6727,19 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCap2side()
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 0);
 				DeleteFile(tem_strSrcImageName);
 			}
+			else if (m_BCamera800b && (m_nLastUsedResolu == m_nInterpolateReso || m_nLastUsedResolu == m_nInterpolateReso+1))
+			{
+				//800W设备
+				if (m_nLastUsedResolu == m_nInterpolateReso)
+				{
+					tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 0);
+				} 
+				else if(m_nLastUsedResolu == m_nInterpolateReso+1)
+				{
+					tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 7);
+				}
+				DeleteFile(tem_strSrcImageName);
+			}
 			else if (m_BCamera500 && m_nLastUsedResolu == m_nInterpolateReso)
 			{
 				//500W设备
@@ -6180,6 +6855,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapgoon()
 	m_iChildNor.m_chkAutoCrt.SetCheck(TRUE);  //连拍自动打开启动裁切
 
 	if (m_BCamera800 && m_nLastUsedResolu==m_nInterpolateReso)
+	{
+		m_conVideoOcx.AutomaticCapture(tem_strSrcImagePath, tem_nFormat);
+	}
+	else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso||m_nLastUsedResolu==m_nInterpolateReso+1))
 	{
 		m_conVideoOcx.AutomaticCapture(tem_strSrcImagePath, tem_nFormat);
 	}
@@ -6858,13 +7537,16 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 3);
+
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
-				//3)删除缓存图像
-				DeleteFile(tem_strSrcImageName);
+				
 			} 
 			else if (m_BCamera800 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -6872,13 +7554,39 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 0);
+
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+				
+			} 
+			else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso||m_nLastUsedResolu==m_nInterpolateReso+1))
+			{
+				//1)将合并图像保存至缓存目录
+				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
+				//2)插值图像
+				if (m_nLastUsedResolu==m_nInterpolateReso)
+				{
+					tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 0);
+				} 
+				else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+				{
+					tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 7);
+				}
 				//3)删除缓存图像
 				DeleteFile(tem_strSrcImageName);
+
+				m_vcFileName.push_back(tem_strName);
+				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
+				m_vcWholeName.push_back(tem_strSrcImageName);
+				m_vcBussName.push_back(tem_strWholeName);
+				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
+				
 			} 
 			else if(m_BCamera1200 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -6886,13 +7594,15 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 1);
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
-				//3)删除缓存图像
-				DeleteFile(tem_strSrcImageName);
+				
 			}
 			else if (m_BCamera1300 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -6900,13 +7610,15 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 2);
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
-				//3)删除缓存图像
-				DeleteFile(tem_strSrcImageName);
+				
 			}
 			else if (m_BGS1600 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -6914,13 +7626,15 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 5);
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
-				//3)删除缓存图像
-				DeleteFile(tem_strSrcImageName);
+				
 			}
 			else if (m_BCamera200 && m_nLastUsedResolu==m_nInterpolateReso)
 			{
@@ -6928,13 +7642,15 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSubswitch(WPARAM wParam, LPARAM lParam
 				m_conVideoOcx.CaptureTwoCam(tem_strSrcImageName, m_nMergeMode, m_nMergeLocation);	
 				//2)插值图像
 				tem_strWholeName = InterPolateImage(tem_strSrcImageName, tem_strWholeName, 6);
+				//3)删除缓存图像
+				DeleteFile(tem_strSrcImageName);
+
 				m_vcFileName.push_back(tem_strName);
 				tem_strSrcImageName = GetThumbPath(tem_strWholeName, tem_strName);    //保存缩略图
 				m_vcWholeName.push_back(tem_strSrcImageName);
 				m_vcBussName.push_back(tem_strWholeName);
 				ThumbaiList(m_nThumbWidth, m_nThumbHeight);
-				//3)删除缓存图像
-				DeleteFile(tem_strSrcImageName);
+				
 			}
 			else
 			{
@@ -7256,6 +7972,18 @@ void CUDSSmartCamerav100Dlg::GetBarcodeStringUdsVideoctrl1(LPCTSTR Barcode)
 		tem_strWholeName = InterPolateImage(tem_strSrcName, tem_strWholeName, 0);
 		DeleteFile(tem_strSrcName);
 	}
+	else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso || m_nLastUsedResolu==m_nInterpolateReso+1))
+	{
+		if (m_nLastUsedResolu==m_nInterpolateReso)
+		{
+			tem_strWholeName = InterPolateImage(tem_strSrcName, tem_strWholeName, 0);
+		} 
+		else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+		{
+			tem_strWholeName = InterPolateImage(tem_strSrcName, tem_strWholeName, 7);
+		}
+		DeleteFile(tem_strSrcName);
+	}
 	else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
 	{
 		tem_strWholeName = InterPolateImage(tem_strSrcName, tem_strWholeName, 3);
@@ -7380,6 +8108,20 @@ void CUDSSmartCamerav100Dlg::GetAutoCapFileNameUdsVideoctrl1(LPCTSTR fileName)
 		//根据原路径+文件名拿出文件名，同时转移至新路径
 		tem_strWholeName = m_strDefaultPath + tem_strFileName;
 		tem_strWholeName = InterPolateImage(tem_strName, tem_strWholeName, 0);
+		DeleteFile(tem_strName);
+	}
+	else if (m_BCamera800b && (m_nLastUsedResolu==m_nInterpolateReso|| m_nLastUsedResolu==m_nInterpolateReso+1))
+	{
+		tem_strWholeName = m_strDefaultPath + tem_strFileName;
+		if (m_nLastUsedResolu==m_nInterpolateReso)
+		{
+			tem_strWholeName = InterPolateImage(tem_strName, tem_strWholeName, 0);
+		} 
+		else if(m_nLastUsedResolu==m_nInterpolateReso+1)
+		{
+			tem_strWholeName = InterPolateImage(tem_strName, tem_strWholeName, 7);
+		}
+		
 		DeleteFile(tem_strName);
 	}
 	else if (m_BCamera500 && m_nLastUsedResolu==m_nInterpolateReso)
@@ -9852,6 +10594,11 @@ CString CUDSSmartCamerav100Dlg::InterPolateImage(CString srcImage, CString dsIma
 		tem_fRateW = 2048/(1600*1.0);
 		tem_fRateH = 1536/(1200*1.0);
 		break;
+	case 7:
+		//800->1600
+		tem_fRateW  = 4680/(3264*1.0);
+		tem_fRateH  = 3510/(2448*1.0);
+		break;
 	default:
 		return srcImage;
 		break;
@@ -11150,4 +11897,53 @@ CString CUDSSmartCamerav100Dlg::GenerateOthers(CString srcImg, CString dstImg, i
 		return dstImg;
 	}
 	return srcImg;
+}
+
+
+CString CUDSSmartCamerav100Dlg::Self_SetDPI(CString srcImg, CString dstImg, int dpi)
+{
+	CxImage tem_cxSrcImg;
+	tem_cxSrcImg.Load(srcImg, CMAX_IMAGE_FORMATS);
+	tem_cxSrcImg.SetXDPI(dpi);
+	tem_cxSrcImg.SetYDPI(dpi);
+
+
+	int      tem_nFormat   = -1;
+	CString  tem_strFormat = _T("");
+	tem_strFormat = srcImg;
+	tem_nFormat = tem_strFormat.ReverseFind('.');
+	tem_strFormat = tem_strFormat.Mid(tem_nFormat+1);
+	tem_strFormat.MakeLower();
+	if (tem_strFormat == _T("bmp"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_BMP);
+	}
+	else if (tem_strFormat == _T("jpg"))
+	{
+		tem_cxSrcImg.SetJpegQuality(m_nJpegQulity);
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_JPG);
+	}
+	else if (tem_strFormat == _T("tif"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_TIF);
+	}
+	else if (tem_strFormat == _T("png"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_PNG);
+	}
+	else if (tem_strFormat == _T("tga"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_TGA);
+	}
+	else if (tem_strFormat == _T("pcx"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_PCX);	
+	}
+	else if (tem_strFormat == _T("ras"))
+	{
+		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_RAS);
+	}
+
+
+	return dstImg;
 }

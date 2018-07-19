@@ -53,6 +53,7 @@ void CUDSChildNor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CMB_AUDEO, m_conAudio);
 	DDX_Control(pDX, IDC_CMB_AUDEOFORMAT, m_conAudioFmt);
 	DDX_Control(pDX, IDC_CMB_CROPMODE2, m_conCropMode);
+	DDX_Control(pDX, IDC_CMB_DPI2, m_conComDpi);
 }
 
 
@@ -77,6 +78,9 @@ BEGIN_MESSAGE_MAP(CUDSChildNor, CDialogEx)
 	ON_BN_CLICKED(IDC_CHK_AUTROTATE, &CUDSChildNor::OnClickedChkAutrotate)
 	ON_BN_CLICKED(IDC_CHK_OPTIMIZE, &CUDSChildNor::OnClickedChkOptimize)
 	ON_CBN_SELCHANGE(IDC_CMB_CROPMODE2, &CUDSChildNor::OnSelchangeCmbCropmode2)
+	ON_STN_CLICKED(IDC_STA_DPI, &CUDSChildNor::OnClickedStaDpi)
+	ON_CBN_SELCHANGE(IDC_CMB_DPI2, &CUDSChildNor::OnSelchangeCmbDpi2)
+	ON_BN_CLICKED(IDC_BTN_CORRECTDPI, &CUDSChildNor::OnBnClickedBtnCorrectdpi)
 END_MESSAGE_MAP()
 
 
@@ -147,6 +151,7 @@ BOOL CUDSChildNor::OnInitDialog()
 //	m_nIndexFile    = 1;
 //	m_nIndexColor   = 2;
 	m_nAudioIndex   = 0;
+	m_BDpiOpen = FALSE;
 	//从配置文件读
 	::GetPrivateProfileString(_T("ParentCamera"), _T("FileMode"), _T("没有找到FileMode信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
 	m_nIndexFile    = _ttoi(tem_strRead);
@@ -197,6 +202,7 @@ BOOL CUDSChildNor::OnInitDialog()
 	m_conAudioFmt.InsertString(0, _T("mp4"));
 	m_conAudioFmt.InsertString(1, _T("wmv"));
 	m_conAudioFmt.InsertString(2, _T("avi"));
+	m_conAudioFmt.InsertString(3, _T("asf"));
 	m_conAudioFmt.SetCurSel(0);
 
 	//2、---------------------------------------
@@ -282,6 +288,24 @@ BOOL CUDSChildNor::OnInitDialog()
 	{
 		((CButton*)GetDlgItem(IDC_CHK_OPTIMIZE))->SetCheck(TRUE);
 	}
+
+
+	m_conComDpi.InsertString(0, _T("100"));
+	m_conComDpi.InsertString(1, _T("150"));
+	m_conComDpi.InsertString(2, _T("200"));
+	m_conComDpi.InsertString(3, _T("300"));
+	m_conComDpi.InsertString(4, _T("400"));
+	m_conComDpi.InsertString(5, _T("500"));
+	m_conComDpi.InsertString(6, _T("600"));
+	m_conComDpi.SetCurSel(0);
+	GetDlgItem(IDC_STA_DPI)->SetWindowText(_T("分辨率"));
+	GetDlgItem(IDC_CMB_DPI2)->EnableWindow(FALSE);
+	GetDlgItem(IDC_CMB_DPI2)->ShowWindow(SW_HIDE);
+
+	GetDlgItem(IDC_BTN_CORRECTDPI)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BTN_CORRECTDPI)->ShowWindow(SW_HIDE);
+
+
 
 
 	
@@ -695,3 +719,93 @@ void CUDSChildNor::OnClickedChkOptimize()
 	::SendMessage(m_hWnd, WM_SWITCH, tem_nOptimize, 12);
 }
 
+
+
+void CUDSChildNor::OnClickedStaDpi()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!m_BDpiOpen)
+	{
+		GetDlgItem(IDC_STA_DPI)->SetWindowText(_T("DPI"));
+		m_BDpiOpen = TRUE;
+
+		GetDlgItem(IDC_CMB_DPI)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CMB_DPI)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_CMB_DPI2)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CMB_DPI2)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_BTN_CORRECTDPI)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BTN_CORRECTDPI)->ShowWindow(SW_NORMAL);
+
+
+		CRect  tem_rcRect;; 
+		GetDlgItem(IDC_STA_DPI)->GetWindowRect(&tem_rcRect); 
+		ScreenToClient(&tem_rcRect); //转到客户端界面
+		InvalidateRect(&tem_rcRect);//最后刷新对话框背景 
+
+		::SendMessage(m_hWnd, WM_SWITCH, 1, 13);
+	}
+	else
+	{
+		GetDlgItem(IDC_STA_DPI)->SetWindowText(_T("分辨率"));
+		m_BDpiOpen = FALSE;
+
+		GetDlgItem(IDC_CMB_DPI)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CMB_DPI)->ShowWindow(SW_NORMAL);
+		GetDlgItem(IDC_CMB_DPI2)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CMB_DPI2)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_BTN_CORRECTDPI)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BTN_CORRECTDPI)->ShowWindow(SW_HIDE);
+
+
+		CRect  tem_rcRect;; 
+		GetDlgItem(IDC_STA_DPI)->GetWindowRect(&tem_rcRect); 
+		ScreenToClient(&tem_rcRect); //转到客户端界面
+		InvalidateRect(&tem_rcRect);//最后刷新对话框背景 
+
+		::SendMessage(m_hWnd, WM_SWITCH, 0, 13);
+	}	
+}
+
+
+void CUDSChildNor::OnSelchangeCmbDpi2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int tem_nCurIndex = m_conComDpi.GetCurSel();
+	int tem_CurValue  = 100;
+	switch(tem_nCurIndex)
+	{
+	case 0:
+		tem_CurValue = 100;
+		break;
+	case 1:
+		tem_CurValue = 150;
+		break;
+	case 2:
+		tem_CurValue = 200;
+		break;
+	case 3:
+		tem_CurValue = 300;
+		break;
+	case 4:
+		tem_CurValue = 400;
+		break;
+	case 5:
+		tem_CurValue = 500;
+		break;
+	case 6:
+		tem_CurValue = 600;
+		break;
+	default:
+		tem_CurValue = 100;
+		break;
+	}
+	::SendMessage(m_hWnd, WM_SWITCH, tem_CurValue, 14);
+
+}
+
+
+void CUDSChildNor::OnBnClickedBtnCorrectdpi()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	::SendMessage(m_hWnd, WM_SWITCH, 0, 15);
+}

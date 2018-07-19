@@ -264,6 +264,7 @@ public:
 	BOOL      m_BCamera200;   //200W设备标志位
 	BOOL      m_BCamera500;   //500W设备标志位
 	BOOL      m_BCamera800;   //800W设备标志位
+	BOOL m_BCamera800b; //800W->1000W,800W->1600W
 	BOOL      m_BCamera1200;  //1200W设备标志位
 	BOOL      m_BCamera1300;  //1300W设备标识位
 	BOOL      m_BCameraTo1500;
@@ -288,8 +289,12 @@ public:
 	CString   m_strPIDTo1500; //1221插值到1500W
 	CString   m_strVIDTo1500;
 
+	
+
 	CString   m_strPID800Un;    //0425不知道机器型号
 	CString   m_strVID800Un;    //0425不知道机器型号
+
+	
 
 	// 图像插值
 	CString InterPolateImage(CString srcImage, CString dsImage, int index); //index = 0: 800->1000; index=1:1200->1600
@@ -380,4 +385,9 @@ public:
 	CString GenerateOthers(CString srcImg, CString dstImg, int mode);
 	int m_nMainCodec; //主头视频编码
 	int m_nSubCodec; //副头视频编码
+
+	//dpi与分辨率切换
+	BOOL m_BMainDpiOpen;
+	int  m_nCurDPI;
+	CString Self_SetDPI(CString srcImg, CString dstImg, int dpi);
 };

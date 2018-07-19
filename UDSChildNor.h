@@ -90,4 +90,11 @@ public:
 	CString   m_strIniPath;
 	CComboBox m_conCropMode;
 	afx_msg void OnSelchangeCmbCropmode2();
+	afx_msg void OnClickedStaDpi();
+
+	//∑÷±Ê¬ ”ÎDPI«–ªª
+	BOOL m_BDpiOpen;
+	CComboBox m_conComDpi;
+	afx_msg void OnSelchangeCmbDpi2();
+	afx_msg void OnBnClickedBtnCorrectdpi();
 };
