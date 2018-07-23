@@ -334,6 +334,8 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_nMainCodec = 0;
 	m_nSubCodec = 0;
 
+	m_nOCRMode = 0;
+
 //	m_iCard = new CCardReader();   //初始化身份证读卡器
 
 	m_nScreenWidth  = GetSystemMetrics(SM_CXSCREEN);
@@ -1794,6 +1796,10 @@ void CUDSSmartCamerav100Dlg::LoadIniFile(void)
 	::GetPrivateProfileString(_T("Resource"), _T("SubCodec"), _T("没有找到SubCodec信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	m_nSubCodec = _ttoi(tem_strRead);
 	tem_strRead.ReleaseBuffer();
+
+	::GetPrivateProfileString(_T("Resource"), _T("OcrMode"), _T("没有找到OcrMode信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	m_nOCRMode = _ttoi(tem_strRead);
+	tem_strRead.ReleaseBuffer();
 }
 
 
@@ -1886,6 +1892,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 	int       tem_nSite;            //视频分辨率拆分
 	int n=-1;
 	int tem_ndpi=0;
+	CString tem_strRC = _T("");
 	
 
 	switch(tem_nOperation)
@@ -3129,6 +3136,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 		else
 		{
 			m_BMainDpiOpen = FALSE;
+			m_conVideoOcx.SetImageDPI(1200);
 		}
 		break;
 	case 14:
@@ -3136,8 +3144,12 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 		m_nCurDPI = tem_nSelect;
 		break;
 	case 15:
-		MessageBox(_T("校正"));
-		m_conVideoOcx.CorrectionDPI();
+		m_conVideoOcx.SetImageDPI(1200);
+		tem_strRC = m_conVideoOcx.CorrectionDPI();
+		if (!tem_strRC.IsEmpty())
+		{
+			MessageBox(tem_strRC, _T("紫图UDS"), MB_OK);
+		}
 		break;
 	default:
 		break;
@@ -3192,6 +3204,10 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnCapature()
 	*        ------普通设备
 	*
 	***********************************/
+	if (m_BMainDpiOpen)
+	{
+		m_conVideoOcx.SetImageDPI(m_nCurDPI);
+	}
 
 	if (m_BPDFCpt)
 	{
@@ -9478,8 +9494,19 @@ void CUDSSmartCamerav100Dlg::On32775Word()
 				tem_strOutTxt  = m_strBufferPath;
 				tem_strOutTxt += tem_strFileName;
 				tem_strOutTxt += _T(".txt");
-				Self_OcrRecognize(tem_strFilePath, tem_strOutTxt);			
-				
+				if (m_nOCRMode == 0)
+				{
+					//默认谷歌OCR内核
+					Self_OcrRecognize(tem_strFilePath, tem_strOutTxt);
+					
+				}
+				else
+				{
+					//麦哲OCR内核
+					Self_OcrRecognize2(tem_strFilePath, tem_strOutTxt);
+					
+				}
+							
 				//生成doc路径，导出word文件
 				tem_strMiddle = tem_strFilePath;
 				tem_wstrOutDoc = tem_strMiddle.GetBuffer();
@@ -9500,34 +9527,58 @@ void CUDSSmartCamerav100Dlg::On32775Word()
 				tem_strOutTxt += tem_strFileName;
 				tem_strOutTxt += _T(".txt");
 
-				//将tif文件转换为jpg
-				CxImage   tem_cxImg;
-				tem_cxImg.Load(tem_strFilePath);
+				if (m_nOCRMode==0)
+				{
+					//谷歌OCR内核
+					//将tif文件转换为jpg
+					CxImage   tem_cxImg;
+					tem_cxImg.Load(tem_strFilePath);
 
-				wchar_t*  tem_wstrNewPath = tem_strFilePath.GetBuffer();
-				tem_strFilePath.ReleaseBuffer();
-				PathRemoveExtension(tem_wstrNewPath);
-				CString   tem_strNewPath            = tem_wstrNewPath;
-				tem_strNewPath           += _T(".jpg");
-	
-				tem_cxImg.Save(tem_strNewPath, CXIMAGE_FORMAT_JPG);
+					wchar_t*  tem_wstrNewPath = tem_strFilePath.GetBuffer();
+					tem_strFilePath.ReleaseBuffer();
+					PathRemoveExtension(tem_wstrNewPath);
+					CString   tem_strNewPath            = tem_wstrNewPath;
+					tem_strNewPath           += _T(".jpg");
 
-				Self_OcrRecognize(tem_strNewPath, tem_strOutTxt);			
+					tem_cxImg.Save(tem_strNewPath, CXIMAGE_FORMAT_JPG);
 
-				//生成doc路径，导出word文件
-				tem_strMiddle = tem_strFilePath;
-				tem_wstrOutDoc = tem_strMiddle.GetBuffer();
-				PathRemoveFileSpec(tem_wstrOutDoc);
-				tem_strOutWord  = tem_wstrOutDoc;
-				tem_strOutWord += _T("\\");
-				tem_strOutWord += tem_strFileName;
-				tem_strOutWord += _T(".doc");
+					Self_OcrRecognize(tem_strNewPath, tem_strOutTxt);
+					
 
-				Self_Write2Office(tem_strOutTxt, tem_strOutWord);
+					//生成doc路径，导出word文件
+					tem_strMiddle = tem_strFilePath;
+					tem_wstrOutDoc = tem_strMiddle.GetBuffer();
+					PathRemoveFileSpec(tem_wstrOutDoc);
+					tem_strOutWord  = tem_wstrOutDoc;
+					tem_strOutWord += _T("\\");
+					tem_strOutWord += tem_strFileName;
+					tem_strOutWord += _T(".doc");
 
-				m_vcOcrBuffer.push_back(tem_strOutTxt);
+					Self_Write2Office(tem_strOutTxt, tem_strOutWord);
 
-				DeleteFile(tem_strNewPath);
+					m_vcOcrBuffer.push_back(tem_strOutTxt);
+
+					DeleteFile(tem_strNewPath);
+				} 
+				else
+				{
+					//麦哲OCR内核
+					Self_OcrRecognize2(tem_strFilePath, tem_strOutTxt);
+					
+
+					//生成doc路径，导出word文件
+					tem_strMiddle = tem_strFilePath;
+					tem_wstrOutDoc = tem_strMiddle.GetBuffer();
+					PathRemoveFileSpec(tem_wstrOutDoc);
+					tem_strOutWord  = tem_wstrOutDoc;
+					tem_strOutWord += _T("\\");
+					tem_strOutWord += tem_strFileName;
+					tem_strOutWord += _T(".doc");
+
+					Self_Write2Office(tem_strOutTxt, tem_strOutWord);
+
+					m_vcOcrBuffer.push_back(tem_strOutTxt);
+				}	
 			}
 		}		
 	}
@@ -9692,6 +9743,52 @@ char* CUDSSmartCamerav100Dlg::UnicodeToAnsi(const wchar_t* szStr)
 	WideCharToMultiByte( CP_ACP, 0, szStr, -1, pResult, nLen, NULL, NULL );    
 
 	return pResult;    
+}
+
+
+//麦哲OCR算法
+void CUDSSmartCamerav100Dlg::Self_OcrRecognize2(CString imgpath, CString txtpath)
+{
+	//1、CmCapture库初始化-------------------------
+	long tem_nRC = camInitCameraLib();
+	if (tem_nRC == ERR_NOLICENSE)
+	{
+		//没有授权
+	}
+	//2、将图像添加到OCR识别序列--------------------
+	string tem_sImgPath = ConvertWA_W2A(wstring(imgpath));	
+	tem_nRC = ocrAddImageFileToOCRList((char*)tem_sImgPath.c_str());
+	if (tem_nRC)
+	{
+		//启动失败
+	}
+	//3、OCR识别导出txt----------------------------
+	string tem_sTxtPath = ConvertWA_W2A(wstring(txtpath));
+	tem_nRC = ocrCombineToFile((char*)tem_sTxtPath.c_str(), 27);
+	//	tem_nRC = ocrCombineToFile("C:\\Users\\Administrator\\Desktop\\QT测试\\wenben.txt", 27);
+
+	//4、cmCapture库释放---------------------------
+	camUnInitCameraLib();
+}
+
+
+//宽字头转多字头
+std::string CUDSSmartCamerav100Dlg::ConvertWA_W2A(std::wstring wstrSrc)
+{
+	std::string strDst = "";
+	if (wstrSrc == L"") 
+	{
+		return strDst; 
+	}
+	int nStrLen = wstrSrc.length();
+	const wchar_t* wchSrc = wstrSrc.c_str();
+	int nEffStrLen = WideCharToMultiByte(CP_ACP, 0, wchSrc, -1, NULL, NULL, NULL, NULL); 
+	char* chDst = new char[nEffStrLen]; 
+	::memset(chDst,0,nEffStrLen*sizeof(char));
+	WideCharToMultiByte(CP_ACP, 0, wchSrc, -1, chDst, nEffStrLen, NULL, NULL); 
+	strDst = chDst; 
+	delete chDst; 
+	return strDst; 
 }
 
 
@@ -11902,6 +11999,7 @@ CString CUDSSmartCamerav100Dlg::GenerateOthers(CString srcImg, CString dstImg, i
 
 CString CUDSSmartCamerav100Dlg::Self_SetDPI(CString srcImg, CString dstImg, int dpi)
 {
+	/*
 	CxImage tem_cxSrcImg;
 	tem_cxSrcImg.Load(srcImg, CMAX_IMAGE_FORMATS);
 	tem_cxSrcImg.SetXDPI(dpi);
@@ -11943,6 +12041,7 @@ CString CUDSSmartCamerav100Dlg::Self_SetDPI(CString srcImg, CString dstImg, int 
 	{
 		tem_cxSrcImg.Save(dstImg, CXIMAGE_FORMAT_RAS);
 	}
+	*/
 
 
 	return dstImg;

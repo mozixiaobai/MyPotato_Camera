@@ -37,6 +37,8 @@
 #include "baseapi.h"     //ocr文字识别
 #include <locale>         //向TXT中写入中文
 #include "UDSFaceID.h"
+#include "CmDefine.h" //麦哲OCR
+#include "CmCapture.h" //麦哲OCR
 
 // #include "Uxtheme.h"
 // #pragma comment(lib, "Uxtheme.lib")
@@ -390,4 +392,9 @@ public:
 	BOOL m_BMainDpiOpen;
 	int  m_nCurDPI;
 	CString Self_SetDPI(CString srcImg, CString dstImg, int dpi);
+
+	//OCR内核
+	int m_nOCRMode; //0-默认谷歌OCR，1-麦哲OCR
+	void Self_OcrRecognize2(CString imgpath, CString txtpath);
+	std::string ConvertWA_W2A(std::wstring wstrSrc);
 };
