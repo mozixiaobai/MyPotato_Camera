@@ -6,6 +6,7 @@
 #define  WM_SUBSWITCH  WM_USER+1002
 #define  WM_ADVCESET   WM_USER+1003
 #define  WM_FACEID     WM_USER+1004
+#define  WM_DTCBTN     WM_USER+1005
 
 #include "UDSChildNor.h"
 #include "UDSChildAdv.h"
@@ -47,6 +48,13 @@ using namespace std;
 using namespace pdflib;
 
 
+UINT ThreadDetect(LPVOID lpParam); //检测线程入口
+struct DtcThreadInfo
+{
+	HWND hWnd; //窗口句柄，用于发送消息
+	int index; //Camera索引
+	int mode; //预留标识位
+};
 
 
 
@@ -397,4 +405,15 @@ public:
 	int m_nOCRMode; //0-默认谷歌OCR，1-麦哲OCR
 	void Self_OcrRecognize2(CString imgpath, CString txtpath);
 	std::string ConvertWA_W2A(std::wstring wstrSrc);
+
+	//PICC按键拍照
+	int m_nPiccIndex; //该机索引
+	BOOL m_BPiccFind; //连接标志位
+	CWinThread* hDtcThreadHandle; //检测线程句柄
+	DtcThreadInfo stcDtcThreadInfo;
+	int camGetPiccIndex(CString _pid, CString _vid);
+protected:
+	afx_msg LRESULT OnDtcbtn(WPARAM wParam, LPARAM lParam);
+public:
+	void CheckPicc(bool _find);
 };

@@ -21,6 +21,7 @@ using namespace cv;
 CString    g_strFrontImg;   //身份证正面图像路径
 CString    g_strFaceImg;    //现场拍摄图像路径
 CString    m_strDefaultPath;   //默认路径
+BOOL       g_BOpenDtcThread; //结束检测线程标识位
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -150,6 +151,7 @@ ON_BN_CLICKED(IDC_BTN_FACEID, &CUDSSmartCamerav100Dlg::OnBnClickedBtnFaceid)
 ON_MESSAGE(WM_FACEID, &CUDSSmartCamerav100Dlg::OnFaceid)
 ON_COMMAND(ID_32778, &CUDSSmartCamerav100Dlg::On32778RightRotateL)
 ON_COMMAND(ID_32779, &CUDSSmartCamerav100Dlg::On32779RightRotateR)
+ON_MESSAGE(WM_DTCBTN, &CUDSSmartCamerav100Dlg::OnDtcbtn)
 END_MESSAGE_MAP()
 
 
@@ -298,7 +300,7 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_strPID800GS= _T("10A4");       //GS1000,800->1000W
 	m_strVID800GS= _T("1B17");
 
-	m_strPID800b = _T("6366");        //800W样机
+	m_strPID800b = _T("6366");        //PICC 800W机器
 	m_strVID800b = _T("0C45");
 
 	m_strPID1200 = _T("0013");        //1000W设备PID_VID未定
@@ -335,6 +337,10 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_nSubCodec = 0;
 
 	m_nOCRMode = 0;
+
+	m_nPiccIndex = 0;
+	m_BPiccFind = FALSE;
+	g_BOpenDtcThread = TRUE;
 
 //	m_iCard = new CCardReader();   //初始化身份证读卡器
 
@@ -473,9 +479,19 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 		for (int i=0; i<tem_nDevCount;i++)
 		{
 			CString tem_strDevName = m_conVideoOcx.GetDeviceName(i);
+			CString tem_strPiccPidVid = m_conVideoOcx.GetDevDisplayName(i);
+			int tem_nPiccPid, tem_nPiccVid;
+			tem_nPiccPid = tem_strPiccPidVid.Find(m_strPID800b);
+			tem_nPiccVid = tem_strPiccPidVid.Find(m_strVID800b);
+			if (tem_nPiccPid!=-1 && tem_nPiccVid!=-1)
+			{
+				m_BPiccFind = TRUE;
+			}
+
 			tem_strDevName = CheckCameraName(tem_strDevName);
 			m_iChildNor.m_conComScanner.InsertString(i, tem_strDevName);
 			m_straDeviceName.Add(tem_strDevName);
+
 		}
 
 		m_vcCameraName.clear();
@@ -1243,6 +1259,31 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	}  
 	
 	OnBnClickedBtnDeclear();    //启动最大化
+
+	//12、按键拍照线程-------------------------------------------------------------
+	if (m_BPiccFind)
+	{
+		//【1】初始化lib---------------------------------
+		long tem_lRC = camInitCameraLib();
+		if (tem_lRC == 0)
+		{
+			//【2】获取PICC索引，cam索引和ocx索引不同-----
+			m_nPiccIndex = camGetPiccIndex(m_strPID800b, m_strVID800b);
+			//【3】传入线程信息--------------------------
+			stcDtcThreadInfo.hWnd = this->m_hWnd;
+			stcDtcThreadInfo.index = m_nPiccIndex;
+			stcDtcThreadInfo.mode = 0;
+
+			g_BOpenDtcThread = TRUE;
+
+			//【4】启动线程，检测按键状态-----------------
+			hDtcThreadHandle = AfxBeginThread(ThreadDetect, &stcDtcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			
+		}	
+// 		CString str;
+// 		str.Format(_T("%d"), tem_lRC);
+// 		MessageBox(str);
+	} 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -1834,6 +1875,10 @@ void CUDSSmartCamerav100Dlg::OnSelchangeTabSet(NMHDR *pNMHDR, LRESULT *pResult)
 void CUDSSmartCamerav100Dlg::OnBnClickedBtnTest2()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//结束检测线程
+	g_BOpenDtcThread = FALSE;
+//	camUnInitCameraLib();
+
 	CString    tem_strCamera = _T("1");
 	m_conVideoOcx.StopRun();
 	m_conVideoOcx.Uninitial();
@@ -2472,7 +2517,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnSwitchItem(WPARAM wParam, LPARAM lPara
 			}
 			//更新手动亮度值
 			Self_SetBriValue();
-//			m_conVideoOcx.SetBrightness(m_nBriValue, FALSE);
+//			m_conVideoOcx.SetBrightness(m_nBriValue, FALSE);	
 		}
 		break;
 	case 1:
@@ -7145,6 +7190,10 @@ BOOL CUDSSmartCamerav100Dlg::PreTranslateMessage(MSG* pMsg)
 				
 			}
 			break;
+		case VK_LCONTROL:
+			MessageBox(_T("LCTRL"), _T("UDS"), MB_OK);
+			break;
+
 		}
 	}
 	else if (pMsg->message == WM_KEYUP)
@@ -9768,7 +9817,7 @@ void CUDSSmartCamerav100Dlg::Self_OcrRecognize2(CString imgpath, CString txtpath
 	//	tem_nRC = ocrCombineToFile("C:\\Users\\Administrator\\Desktop\\QT测试\\wenben.txt", 27);
 
 	//4、cmCapture库释放---------------------------
-	camUnInitCameraLib();
+//	camUnInitCameraLib();
 }
 
 
@@ -11049,7 +11098,8 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnDevicechange(WPARAM wParam, LPARAM lPa
 //				Sleep(200);
 				TimeDelayed(200);
 				UpdateDevices(m_nDeviceNumber);
-
+				//重新检测，查看设备是否存在，不存在则关闭线程，存在则重新打开
+				CheckPicc(m_BPiccFind);
 			}  
 			break;  
 
@@ -12045,4 +12095,131 @@ CString CUDSSmartCamerav100Dlg::Self_SetDPI(CString srcImg, CString dstImg, int 
 
 
 	return dstImg;
+}
+
+UINT ThreadDetect(LPVOID lpParam)
+{
+//	MessageBox(NULL, _T("启动线程"), _T("UDS"), MB_OK);
+	DtcThreadInfo* tem_pInfo = (DtcThreadInfo*)lpParam;
+	HWND tem_hWnd = tem_pInfo->hWnd;
+	int tem_nIndex = tem_pInfo->index;
+	int tem_nMode = tem_pInfo->mode;
+	long tem_lRC = -1;
+	do 
+	{
+		tem_lRC = camGetSnapState(tem_nIndex);
+		if (tem_lRC == 1)
+		{
+			//按键按下
+			::SendMessage(tem_hWnd, WM_DTCBTN, 0, 0);
+		}
+	} while (g_BOpenDtcThread);
+	
+	return 0;
+}
+
+
+int CUDSSmartCamerav100Dlg::camGetPiccIndex(CString _pid, CString _vid)
+{
+	_pid.MakeLower();
+	_vid.MakeLower();
+	USES_CONVERSION;
+	long tem_lDevNum = 0; 
+	long tem_lRC = camGetDevCount(tem_lDevNum);
+	int tem_nPiccIndex = 0;
+	for (int i=0; i<tem_lDevNum; i++)
+	{
+		char* tem_cPID = new char;
+		tem_lRC = camGetDevPid(i, tem_cPID);
+		CString tem_strPID = A2W(tem_cPID);
+		tem_strPID.MakeLower();
+
+		char* tem_cVID = new char;
+		tem_lRC = camGetDevVid(i, tem_cVID);
+		CString tem_strVID = A2W(tem_cVID);
+		tem_strVID.MakeLower();
+		
+		int tem_nPiccPid = tem_strPID.Find(_pid);
+		int tem_nPiccVid = tem_strVID.Find(_vid);
+
+		if (tem_nPiccPid!=-1 && tem_nPiccVid!=-1)
+		{
+			tem_nPiccIndex = i;
+			break;
+		}
+	}
+	return tem_nPiccIndex;
+}
+
+
+afx_msg LRESULT CUDSSmartCamerav100Dlg::OnDtcbtn(WPARAM wParam, LPARAM lParam)
+{
+	OnBnClickedBtnCapature();
+
+	return 0;
+}
+
+
+void CUDSSmartCamerav100Dlg::CheckPicc(bool _find)
+{
+	BOOL tem_BDevExit = FALSE;
+	int tem_nDevCount = m_conVideoOcx.GetDeviceCount();//当前设备数量
+	if (tem_nDevCount>0)
+	{
+		for (int i=0; i<tem_nDevCount;i++)
+		{
+			CString tem_strDevName = m_conVideoOcx.GetDeviceName(i);
+			CString tem_strPiccPidVid = m_conVideoOcx.GetDevDisplayName(i);
+			int tem_nPiccPid, tem_nPiccVid;
+			tem_nPiccPid = tem_strPiccPidVid.Find(m_strPID800b);
+			tem_nPiccVid = tem_strPiccPidVid.Find(m_strVID800b);
+			if (tem_nPiccPid!=-1 && tem_nPiccVid!=-1)
+			{
+				tem_BDevExit = TRUE;
+			}
+		}
+	}
+
+	if (_find)
+	{
+		//设备原来存在，检测是否被拔出
+		if (!tem_BDevExit)
+		{
+			//设备被拔出，结束线程
+			g_BOpenDtcThread = FALSE;
+			m_BPiccFind = FALSE;
+		}
+		else
+		{
+			m_BPiccFind = TRUE;
+		}
+	}
+	else
+	{
+		//设备原来不存在，检测是否插入
+		if (tem_BDevExit)
+		{
+			//【1】初始化lib---------------------------------
+			long tem_lRC = camInitCameraLib();
+			if (tem_lRC == 0)
+			{
+				//【2】获取PICC索引，cam索引和ocx索引不同-----
+				m_nPiccIndex = camGetPiccIndex(m_strPID800b, m_strVID800b);
+				//【3】传入线程信息--------------------------
+				stcDtcThreadInfo.hWnd = this->m_hWnd;
+				stcDtcThreadInfo.index = m_nPiccIndex;
+				stcDtcThreadInfo.mode = 0;
+
+				g_BOpenDtcThread = TRUE;
+
+				//【4】启动线程，检测按键状态-----------------
+				hDtcThreadHandle = AfxBeginThread(ThreadDetect, &stcDtcThreadInfo, THREAD_PRIORITY_NORMAL, 0, NULL);
+			}
+			m_BPiccFind = TRUE;
+		}
+		else
+		{
+			m_BPiccFind = FALSE;
+		}
+	}
 }
