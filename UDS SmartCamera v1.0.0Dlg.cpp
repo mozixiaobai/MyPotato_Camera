@@ -23,6 +23,7 @@ CString    g_strFaceImg;    //现场拍摄图像路径
 CString    m_strDefaultPath;   //默认路径
 BOOL       g_BOpenDtcThread; //结束检测线程标识位
 
+
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -96,6 +97,7 @@ void CUDSSmartCamerav100Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_CARDCOPY, m_btnCopyCard);
 	DDX_Control(pDX, IDC_UDS_VIDEOCTRL1, m_conVideoOcx);
 	DDX_Control(pDX, IDC_BTN_FACEID, m_btnCompare);
+	DDX_Control(pDX, IDC_BTN_IDDOC, m_btnIDDoc);
 }
 
 BEGIN_MESSAGE_MAP(CUDSSmartCamerav100Dlg, CDialogEx)
@@ -152,6 +154,7 @@ ON_MESSAGE(WM_FACEID, &CUDSSmartCamerav100Dlg::OnFaceid)
 ON_COMMAND(ID_32778, &CUDSSmartCamerav100Dlg::On32778RightRotateL)
 ON_COMMAND(ID_32779, &CUDSSmartCamerav100Dlg::On32779RightRotateR)
 ON_MESSAGE(WM_DTCBTN, &CUDSSmartCamerav100Dlg::OnDtcbtn)
+ON_BN_CLICKED(IDC_BTN_IDDOC, &CUDSSmartCamerav100Dlg::OnBnClickedBtnIddoc)
 END_MESSAGE_MAP()
 
 
@@ -300,7 +303,7 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_strPID800GS= _T("10A4");       //GS1000,800->1000W
 	m_strVID800GS= _T("1B17");
 
-	m_strPID800b = _T("6366");        //PICC 800W机器
+	m_strPID800b = _T("0A16");        //PICC 800W机器
 	m_strVID800b = _T("0C45");
 
 	m_strPID1200 = _T("0013");        //1000W设备PID_VID未定
@@ -1071,16 +1074,18 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 				m_iChildNor.m_conSlidExpos.SetPos(tem_lValue);       //设置slider当前值
 				m_iChildNor.m_conStaExp = tem_lValue;                //设置slider显示当前值
 				m_iChildNor.m_conStaExpStr.Format(_T("%d"), m_iChildNor.m_conStaExp);
-				m_iChildNor.m_conSlidExpos.EnableWindow(FALSE);	
+//				m_iChildNor.m_conSlidExpos.EnableWindow(FALSE);	
 				UpdateData(FALSE);	
 			}
 
 			if (m_BAutoExp)
 			{
 				m_conVideoOcx.SetAutoExposure(TRUE);
+//				m_iChildNor.m_conSlidExpos.EnableWindow(FALSE);
 			} 
 			else 
 			{
+//				m_iChildNor.m_conSlidExpos.EnableWindow(TRUE);
 				if (m_nManualVaule>=tem_lExmin && m_nManualVaule<=tem_lExmax)
 				{
 					m_conVideoOcx.SetAutoExposure(FALSE);
@@ -1182,16 +1187,35 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_conMin.Init(IDB_PNG_MIN, BTN_IMG_1, BTN_TYPE_NORMAL);
 	m_conWeb.Init(IDB_PNG_WEB, BTN_IMG_1, BTN_TYPE_NORMAL);
 	m_btnSlcPath.Init(IDB_PNG_SLCPATH, BTN_IMG_3, BTN_TYPE_NORMAL);
+	if (m_nIDDoc == 1)
+	{
+		m_btnIDDoc.Init(IDB_PNG_IDDOC, BTN_IMG_3, BTN_TYPE_NORMAL);
+		GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(TRUE);
+	} 
+	else
+	{
+		GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(FALSE);
+	}
+	
 	m_btnMax.Init(IDB_PNG_MAX, BTN_IMG_1, BTN_TYPE_NORMAL);
 	m_btnZoomIn.Init(IDB_PNG_ZOOMIN, BTN_IMG_3, BTN_TYPE_NORMAL);
 	m_btnZoomOut.Init(IDB_PNG_ZOOMOUT, BTN_IMG_4, BTN_TYPE_NORMAL);
 	m_btnRecovery.Init(IDB_PNG_RECOVER, BTN_IMG_3, BTN_TYPE_NORMAL);
 	m_btnCopyCard.Init(IDB_PNG_COPYCARD, BTN_IMG_3, BTN_TYPE_NORMAL);
 	m_btnCompare.Init(IDB_PNG_COMPARE, BTN_IMG_3, BTN_TYPE_NORMAL);
+	
 
 	//7、-------------------------------------------------------------------------
 	m_tipInfo.Create(this);
-	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAPATURE), _T("主头拍照"));
+	if (m_nIDDoc == 1)
+	{
+		m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAPATURE), _T("主头拍照//创建身份证目录"));
+	} 
+	else
+	{
+		m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAPATURE), _T("主头拍照"));
+	}
+	
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAPBAR), _T("条码命名拍照"));
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAPGOON), _T("自动连拍"));
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CAP2SIDE), _T("正反面合并拍照"));
@@ -1207,6 +1231,7 @@ BOOL CUDSSmartCamerav100Dlg::OnInitDialog()
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_ZOOMOUT), _T("预览缩小"));
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_RECOVER), _T("预览适合"));
 	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_CARDCOPY), _T("身份证复印"));
+//	m_tipInfo.AddTool(GetDlgItem(IDC_BTN_IDDOC), _T("以身份证信息创建目录"));
 	
 	m_tipInfo.SetDelayTime(TTDT_INITIAL, 100);    //设置鼠标悬浮显示时间
 	m_tipInfo.SetDelayTime(TTDT_AUTOPOP, 5000);   //设置显示时间
@@ -1646,7 +1671,6 @@ void CUDSSmartCamerav100Dlg::LoadIniFile(void)
 		m_BAutoExp         = TRUE;
 		break;
 	}
-	m_BAutoExp   = TRUE;
 
 	//0112
 	::GetPrivateProfileString(_T("ParentCamera"), _T("VideoRotate"), _T("没有找到VideoRotate信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
@@ -1767,6 +1791,7 @@ void CUDSSmartCamerav100Dlg::LoadIniFile(void)
 	m_strDefaultPath.ReleaseBuffer();
 	m_strShowPath = m_strDefaultPath;
 	m_strDefaultPath += "\\";
+	m_strDefaultDoc = m_strDefaultPath;
 
 	::GetPrivateProfileString(_T("AdvanceSet"), _T("HTTP"), _T("没有找到HTTP信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	m_strHttp         = tem_strRead;
@@ -1840,6 +1865,10 @@ void CUDSSmartCamerav100Dlg::LoadIniFile(void)
 
 	::GetPrivateProfileString(_T("Resource"), _T("OcrMode"), _T("没有找到OcrMode信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
 	m_nOCRMode = _ttoi(tem_strRead);
+	tem_strRead.ReleaseBuffer();
+
+	::GetPrivateProfileString(_T("Resource"), _T("IDDoc"), _T("没有找到IDDoc信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, m_strIniPath);
+	m_nIDDoc = _ttoi(tem_strRead);
 	tem_strRead.ReleaseBuffer();
 }
 
@@ -7189,9 +7218,37 @@ BOOL CUDSSmartCamerav100Dlg::PreTranslateMessage(MSG* pMsg)
 				}
 				
 			}
+			else
+			{
+				//MessageBox(_T("A"));
+				//普通拍照
+				OnBnClickedBtnCapature();
+			}
 			break;
 		case VK_LCONTROL:
-			MessageBox(_T("LCTRL"), _T("UDS"), MB_OK);
+//			MessageBox(_T("LCTRL"), _T("UDS"), MB_OK);
+			break;
+		case 0x42:
+			//MessageBox(_T("B"));
+			//条码识别
+			OnBnClickedBtnCapbar();
+			break;
+		case 0x43:
+			//MessageBox(_T("C"));
+			//PDF拍照
+			m_BPDFOld = m_BPDFCpt;
+			m_BPDFCpt = TRUE;
+			m_strPDFOld = m_strFileFormat;
+			m_strFileFormat = _T(".pdf");
+			OnBnClickedBtnCapature();
+			m_BPDFCpt = m_BPDFOld;
+			m_strFileFormat = m_strPDFOld;
+			
+			break;
+		case 0x44:
+			//MessageBox(_T("D"));
+			//合并拍照
+			OnBnClickedBtnCap2side();
 			break;
 
 		}
@@ -7204,6 +7261,19 @@ BOOL CUDSSmartCamerav100Dlg::PreTranslateMessage(MSG* pMsg)
 			m_BSpaceDown = TRUE;
 			return TRUE;
 			break;
+		}
+	}
+
+	//鼠标右键点击按钮
+	if (pMsg->message == WM_RBUTTONDOWN)
+	{
+		CPoint   tem_ptCursor;
+		GetCursorPos(&tem_ptCursor);
+		CRect    tem_rcOCX;
+		GetDlgItem(IDC_BTN_CAPATURE)->GetWindowRect(&tem_rcOCX);
+		if (tem_rcOCX.PtInRect(tem_ptCursor) && m_nIDDoc==1)
+		{
+			OnBnClickedBtnIddoc();
 		}
 	}
 
@@ -7824,6 +7894,7 @@ afx_msg LRESULT CUDSSmartCamerav100Dlg::OnAdvceset(WPARAM wParam, LPARAM lParam)
 		//注意后面的\\---------------------------------------------------------------------------------------
 		::WritePrivateProfileString(_T("AdvanceSet"), _T("DefaultPath"), m_strDefaultPath, m_strIniPath);
 		m_strDefaultPath += _T("\\");
+		m_strDefaultDoc = m_strDefaultPath;
 		break;
 	case 7:
 		//上传当前文档	
@@ -8805,6 +8876,7 @@ void CUDSSmartCamerav100Dlg::OnDblclkStaInfopath()
 		::WritePrivateProfileString(_T("Resource"), _T("curdirectory"), m_strDefaultPath, m_strIniPath);
 		m_strDefaultPath += _T("\\\\");
 		GetDlgItem(IDC_STA_INFOPATH)->SetWindowText(tem_strSltPath);
+		m_strDefaultDoc = m_strDefaultPath;
 	} 
 	CRect rtlbl; 
 	GetDlgItem(IDC_STA_INFOPATH)->GetWindowRect(&rtlbl); 
@@ -8844,8 +8916,9 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnSavepath()
 		if (tem_strLast != _T("\\"))
 		{
 			m_strDefaultPath += _T("\\");
+			
 		}
-		
+		m_strDefaultDoc = m_strDefaultPath;
 		GetDlgItem(IDC_STA_INFOPATH)->SetWindowText(tem_strSltPath);
 	} 
 	CRect rtlbl; 
@@ -8853,6 +8926,74 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnSavepath()
 	ScreenToClient(&rtlbl); //转到客户端界面
 	InvalidateRect(&rtlbl);//最后刷新对话框背景 
 	UpdateWindow();
+}
+
+
+//身份证姓名+ID新建目录
+void CUDSSmartCamerav100Dlg::OnBnClickedBtnIddoc()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//0、变量初始化--------------------
+	CTermbReader* m_iReadID; 
+	m_iReadID = new CTermbReader;
+	CString tem_strIDName = _T("");
+	CString tem_strIDNumber = _T("");
+	CString tem_strIDDoc = _T("");
+
+	//1、设置身份证名称----------------
+	CString tem_strIDImg = m_strFingerDoc;
+	tem_strIDImg += _T("head.bmp");
+	CString tem_strFingerDat = m_strFingerDoc;
+	tem_strFingerDat += _T("fp.dat");
+	CString tem_strFingerWlt = m_strFingerDoc;
+	tem_strFingerWlt += _T("xp.wlt");
+
+	//2、读卡-------------------------
+	CString tem_strRC = m_iReadID->OpenCardPort();
+	if (tem_strRC != _T("打开端口失败"))
+	{
+		m_iReadID->SetHeadPicPath(tem_strIDImg);
+		tem_strRC = m_iReadID->ReadIDCard(m_strFingerDoc);
+		if (tem_strRC == _T(""))
+		{
+			tem_strIDName = m_iReadID->GetCardName();
+			tem_strIDNumber = m_iReadID->GetCardID();
+
+			//3、创建目录---------------------
+			tem_strIDDoc = m_strDefaultDoc;
+			tem_strIDDoc += tem_strIDName;
+			tem_strIDDoc +=tem_strIDNumber;
+
+			CFileFind    tem_fFileFind;
+			if (!tem_fFileFind.FindFile(tem_strIDDoc))
+			{
+				CreateDirectory(tem_strIDDoc, NULL);
+			}
+			m_strDefaultPath = tem_strIDDoc;
+
+			//4、更新目录显示------------------
+			GetDlgItem(IDC_STA_INFOPATH)->SetWindowText(m_strDefaultPath);
+			CRect rtlbl; 
+			GetDlgItem(IDC_STA_INFOPATH)->GetWindowRect(&rtlbl); 
+			ScreenToClient(&rtlbl); //转到客户端界面
+			InvalidateRect(&rtlbl);//最后刷新对话框背景 
+			UpdateWindow();
+
+			m_strDefaultPath += _T("\\");
+			//5、修改名称，重新计数------------
+			m_nNamingCount = 1;
+
+			//6、删除缓存图像-----------------
+			DeleteFile(tem_strIDImg);
+			DeleteFile(tem_strFingerDat);
+			DeleteFile(tem_strFingerWlt);
+
+
+			m_iReadID->CloseCardPort();
+		}
+	}
+
+	delete m_iReadID;
 }
 
 
@@ -8908,6 +9049,17 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnDeclear()
 		GetDlgItem(IDC_BTN_LROTATE)->GetWindowRect(&m_rcLRotate);
 		GetDlgItem(IDC_BTN_RROTATE)->GetWindowRect(&m_rcRRotate);
 		GetDlgItem(IDC_BTN_SAVEPATH)->GetWindowRect(&m_rcChange);
+//		if (m_nIDDoc == 1)
+		{
+			//打开身份证读卡分类
+//			GetDlgItem(IDC_BTN_IDDOC)->GetWindowRect(&m_rcIDDoc);
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(TRUE);
+		}
+//		else
+//		{
+			//关闭身份证读卡分类
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(FALSE);
+//		}
 		GetDlgItem(IDC_STA_IMAGESIZE)->GetWindowRect(&m_rcImageInfo);
 
 		CRect rcWorkArea; 
@@ -9127,6 +9279,20 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnDeclear()
 		tem_rcControl.left   = tem_rcControl.right - 32;
 		GetDlgItem(IDC_BTN_SAVEPATH)->MoveWindow(&tem_rcControl);
 
+//		if (m_nIDDoc == 1)
+//		{
+			//打开身份证读卡分类
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(TRUE);
+//			tem_rcControl.right  = tem_rcControl.left - 5;
+//			tem_rcControl.left   = tem_rcControl.right - 32;
+//			GetDlgItem(IDC_BTN_IDDOC)->MoveWindow(&tem_rcControl);
+//		}
+//		else
+//		{
+			//关闭身份证读卡分类
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(FALSE);
+//                                                                                       		}
+
 
 // 		tem_rcControl.right  = tem_rcControl.left - 5;
 // 		tem_rcControl.left   = 325;
@@ -9152,7 +9318,15 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnDeclear()
 		GetDlgItem(IDC_STA_NOWPATH)->MoveWindow(&tem_rcControl);
 
 		tem_rcControl.left   = 350;
-		tem_rcControl.right  = 800;
+		if (m_nIDDoc == 1)
+		{
+			tem_rcControl.right  = 760;
+		} 
+		else
+		{
+			tem_rcControl.right  = 800;
+		}
+		
 		GetDlgItem(IDC_STA_INFOPATH)->MoveWindow(&tem_rcControl);
 
 //		GetDlgItem(IDC_BTN_RROTATE)->MoveWindow(&tem_rcControl);
@@ -9222,6 +9396,16 @@ void CUDSSmartCamerav100Dlg::OnBnClickedBtnDeclear()
 		GetDlgItem(IDC_BTN_RROTATE)->MoveWindow(&m_rcRRotate);
 		ScreenToClient(&m_rcChange);
 		GetDlgItem(IDC_BTN_SAVEPATH)->MoveWindow(&m_rcChange);
+//		if (m_nIDDoc == 1)
+//		{
+//			ScreenToClient(&m_rcIDDoc);
+//			GetDlgItem(IDC_BTN_IDDOC)->MoveWindow(&m_rcIDDoc);
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(TRUE);
+//		} 
+//		else
+//		{
+//			GetDlgItem(IDC_BTN_IDDOC)->ShowWindow(FALSE);
+//		}
 		ScreenToClient(&m_rcImageInfo);
 		GetDlgItem(IDC_STA_IMAGESIZE)->MoveWindow(&m_rcImageInfo);
 
@@ -12114,7 +12298,7 @@ UINT ThreadDetect(LPVOID lpParam)
 			::SendMessage(tem_hWnd, WM_DTCBTN, 0, 0);
 		}
 	} while (g_BOpenDtcThread);
-	
+//	MessageBox(NULL, _T("结束线程"), _T("UDS"), MB_OK);
 	return 0;
 }
 
@@ -12188,6 +12372,7 @@ void CUDSSmartCamerav100Dlg::CheckPicc(bool _find)
 			//设备被拔出，结束线程
 			g_BOpenDtcThread = FALSE;
 			m_BPiccFind = FALSE;
+//			DWORD dwRet = WaitForSingleObject(hDtcThreadHandle, INFINITE);
 		}
 		else
 		{
@@ -12220,6 +12405,9 @@ void CUDSSmartCamerav100Dlg::CheckPicc(bool _find)
 		else
 		{
 			m_BPiccFind = FALSE;
+// 			DWORD dwRet = WaitForSingleObject(hDtcThreadHandle, INFINITE);
+
 		}
 	}
 }
+

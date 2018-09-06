@@ -143,6 +143,7 @@ BOOL CUDSChildNor::OnInitDialog()
 
 	int          tem_nAutoCrop;                     //初始化自动裁切和自动曝光
 	int          tem_nAutoExp;
+	int          tem_nExpValue;
 	
 	//0、---------------------------------------
 
@@ -167,11 +168,31 @@ BOOL CUDSChildNor::OnInitDialog()
 	tem_nAutoExp    = _ttoi(tem_strRead);
 	tem_strRead.ReleaseBuffer();
 
+	if (tem_nAutoExp==0)
+	{
+		//自动曝光关闭
+		m_BAutoExp = FALSE;
+		::GetPrivateProfileString(_T("ParentCamera"), _T("ExpValue"), _T("没有找到ExpValue信息"), tem_strRead.GetBuffer(MAX_PATH), MAX_PATH, tem_strIniPath);
+		tem_nExpValue = _ttoi(tem_strRead);
+		tem_strRead.ReleaseBuffer();
+		m_conSlidExpos.EnableWindow(TRUE);
+	
+
+	}
+	else
+	{
+		//自动曝光打开
+		m_BAutoExp = TRUE;
+		((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(TRUE);
+		m_conSlidExpos.EnableWindow(FALSE);
+
+	}
+
+
 	m_BBegin        = FALSE;
 	m_BEnd          =TRUE;
 	m_pWnd = GetParentOwner();
 	m_hWnd = m_pWnd->m_hWnd;
-	m_BAutoExp      = TRUE;
 	m_BMainDownBk   = FALSE;    //FALSE说明，没有使用OnPaint中的CImage类添加背景
     
 	//1、---------------------------------------
@@ -208,8 +229,8 @@ BOOL CUDSChildNor::OnInitDialog()
 	//2、---------------------------------------
 //	((CButton*)GetDlgItem(IDC_CHK_AUTOCRT))->SetCheck(tem_nAutoCrop);
 //	((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(tem_nAutoExp);
-	((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(TRUE);
-	m_conSlidExpos.EnableWindow(FALSE);
+//	((CButton*)GetDlgItem(IDC_CHK_AUTOEXP))->SetCheck(TRUE);
+//	m_conSlidExpos.EnableWindow(FALSE);
 	
 
 	//3、---------------------------------------

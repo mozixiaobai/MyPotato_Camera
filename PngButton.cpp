@@ -70,6 +70,8 @@ BEGIN_MESSAGE_MAP(CPngButton, CButton)
 	ON_MESSAGE(WM_MOUSEHOVER,OnMouseHOver)
 	ON_MESSAGE(WM_MOUSELEAVE,OnMouseLeave)
 	//}}AFX_MSG_MAP
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -270,6 +272,7 @@ LRESULT CPngButton::OnMouseHOver(WPARAM wParam,LPARAM lParam)
 	
 	return 0;
 }
+
 LRESULT CPngButton::OnMouseLeave(WPARAM wParam,LPARAM lParam)
 {
     //鼠标移开时
@@ -307,4 +310,39 @@ bool CPngButton::SetFourState()
 {
 	m_nState = 1;
 	return true;
+}
+
+
+void CPngButton::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_nState != CTRL_SELECTED)
+	{
+		m_nState = CTRL_SELECTED;
+
+		if (!m_bMenuOn)
+			m_bMenuOn = TRUE;
+
+		//	PaintParent();
+		Invalidate(FALSE);
+
+//		MessageBox(_T("右键"), _T("UDS"), MB_OK);
+		
+	}
+
+	CButton::OnRButtonDown(nFlags, point);
+}
+
+
+void CPngButton::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (m_nState != CTRL_FOCUS)
+	{
+		m_nState = CTRL_FOCUS;
+		//	PaintParent();
+		Invalidate(FALSE);
+	}
+
+	CButton::OnRButtonUp(nFlags, point);
 }

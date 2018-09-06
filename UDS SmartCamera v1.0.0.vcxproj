@@ -118,6 +118,7 @@
     <None Include="..\..\UDSPlatformCamera\Release\res\还原100.png" />
     <None Include="..\Release\res\BK.png" />
     <None Include="..\Release\res\finger.png" />
+    <None Include="..\Release\res\IDDoc.png" />
     <None Include="..\Release\res\print.png" />
     <None Include="..\Release\res\上一步.png" />
     <None Include="..\Release\res\上传.png" />

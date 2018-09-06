@@ -48,6 +48,8 @@ private:
 public:
 	// 从四状态切换至一状态，原函数不能自动切换至状态一
 	bool SetFourState();
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 };
 
 #endif 

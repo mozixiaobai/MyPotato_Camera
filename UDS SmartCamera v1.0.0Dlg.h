@@ -40,6 +40,7 @@
 #include "UDSFaceID.h"
 #include "CmDefine.h" //麦哲OCR
 #include "CmCapture.h" //麦哲OCR
+#include "CTermbReader.h" //身份证读卡器
 
 // #include "Uxtheme.h"
 // #pragma comment(lib, "Uxtheme.lib")
@@ -244,7 +245,7 @@ public:
 	CRect    m_rcRectSrc;        //最初的客户端区域大小
 	CRect    m_rcBT, m_rcMax, m_rcMin, m_rcExit, m_rcCamera, m_rcAutoCamera, m_rcBarCamera, m_rcSideCamera, m_rcBrows, m_rcFaceID, m_rcCard, m_rcCopyCard;
 	CRect    m_rcTab, m_rcCtrl, m_rcList;
-	CRect    m_rcStaCount, m_rcStaPage, m_rcStaNumber, m_rcNowPath, m_rcShowPath, m_rcZoomIn, m_rcZoomOut, m_rcRecover, m_rcLRotate, m_rcRRotate, m_rcChange, m_rcImageInfo;
+	CRect    m_rcStaCount, m_rcStaPage, m_rcStaNumber, m_rcNowPath, m_rcShowPath, m_rcZoomIn, m_rcZoomOut, m_rcRecover, m_rcLRotate, m_rcRRotate, m_rcChange, m_rcIDDoc, m_rcImageInfo;
 	int      m_nNamingCount;   //命名计数，用于更换命名方式后，从0开始计数
 	afx_msg void OnBnClickedBtnReadcard();
 
@@ -416,4 +417,13 @@ protected:
 	afx_msg LRESULT OnDtcbtn(WPARAM wParam, LPARAM lParam);
 public:
 	void CheckPicc(bool _find);
+
+	int m_nIDDoc; //是否开启身份证读卡分类
+	CString m_strDefaultDoc;
+	CPngButton m_btnIDDoc;
+
+	afx_msg void OnBnClickedBtnIddoc();
+	//四个快捷键
+	BOOL m_BPDFOld; //记录一键拍摄前PDF变量的标志位
+	CString m_strPDFOld; //记录一键拍摄前文件格式
 };

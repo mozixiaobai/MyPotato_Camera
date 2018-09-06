@@ -169,6 +169,9 @@
     <None Include="..\..\UDSPlatformCamera\Release\res\print.png">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="..\Release\res\IDDoc.png">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS SmartCamera v1.0.0.h">
